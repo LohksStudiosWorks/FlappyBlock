@@ -28,7 +28,7 @@ if (MINGW)
 endif()
 
 include(cmake/installBatteryEmbed.cmake)
-include(cmake/installSDL3.cmake)
+include(cmake/installSDL3pp.cmake)
 include(cmake/setupDiscord.cmake)
 
 
@@ -55,16 +55,17 @@ target_compile_definitions(core PRIVATE
     DISCORD_LIB_FILE="${DISCORD_SHARED_LIB_NAME}"
 )
 
-
 target_link_libraries(core PUBLIC
-    SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf
+    SDL3pp::SDL3pp
 )
 
 target_link_libraries(core PRIVATE
     ${DISCORD_LIB_PATH}
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
+set(CMAKE_CXX_FLAGS 
+    "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++"
+)
 
 target_compile_options(core PRIVATE
     $<$<CONFIG:Release>:-O3>
@@ -94,7 +95,6 @@ b_embed(core resources/atlas.png)
 b_embed(core resources/Artifika_font.ttf)
 b_embed(core resources/discord_app_id.txt)
 b_embed(core "${DISCORD_SHARED_LIB_RELATIVE}")
-
 
 include(cmake/integrateDiscord.cmake)
 
