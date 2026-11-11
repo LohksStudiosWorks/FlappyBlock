@@ -13,9 +13,9 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v7
-              with:
-                submodules: recursive
-                token: ${{ secrets.DISCORD_SDK_PAT }}
+#              with:
+#                submodules: recursive
+#                token: ${{ secrets.DISCORD_SDK_PAT }}
 
             - name: Setup 7-Zip
               uses: milliewalky/setup-7-zip@v2
@@ -34,11 +34,11 @@ jobs:
                   libfreetype6-dev libharfbuzz-dev libpng-dev libwebp-dev \
                   libtiff-dev libjpeg-dev
 
-                mkdir -p resources
-                echo "${{ secrets.DISCORD_APP_CLIENT_ID }}" > resources/discord_app_id.txt
-
-                chmod +x ./unzip_sdk.sh
-                ./unzip_sdk.sh
+                ## Disabled Discord for now
+                # mkdir -p resources
+                # echo "${{ secrets.DISCORD_APP_CLIENT_ID }}" > resources/discord_app_id.txt
+                # chmod +x ./unzip_sdk.sh
+                # ./unzip_sdk.sh
 
             - name: Setup Windows dependencies and resources
               if: matrix.os == 'windows-latest'
@@ -46,11 +46,10 @@ jobs:
               run: |
                 # Setup dependencies
 
-                New-Item -ItemType Directory -Force -Path resources
-                "${{ secrets.DISCORD_APP_CLIENT_ID }}" > resources/discord_app_id.txt
-
-                ./unzip_sdk.ps1
-
+                ## Disabled Discord for now
+                #New-Item -ItemType Directory -Force -Path resources
+                #"${{ secrets.DISCORD_APP_CLIENT_ID }}" > resources/discord_app_id.txt
+                #./unzip_sdk.ps1
 
             - name: Build Project
               uses: threeal/cmake-action@v2.1.0
