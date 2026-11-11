@@ -9,6 +9,7 @@ project(FlappyBlock
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)      # Force satellite libraries (image, mixer, ttf, net) to build statically
 
 set(PROJECT_ROOT_DIR "${CMAKE_SOURCE_DIR}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DUNICODE -D_UNICODE")
@@ -29,7 +30,6 @@ endif()
 
 include(cmake/installBatteryEmbed.cmake)
 include(cmake/installSDL3pp.cmake)
-include(cmake/setupDiscord.cmake)
 
 
 # ===== Shared core code ===== #
@@ -47,20 +47,9 @@ add_library(core STATIC ${CORE_SOURCES})
 target_include_directories(core PUBLIC 
     ${PROJECT_ROOT_DIR}/include
 )
-target_include_directories(core PRIVATE 
-    ${DISCORD_SDK_INCLUDE_DIR}
-)
-target_compile_definitions(core PRIVATE
-    DISCORD_LIB_NAME="${DISCORD_SHARED_LIB_RELATIVE}"
-    DISCORD_LIB_FILE="${DISCORD_SHARED_LIB_NAME}"
-)
 
 target_link_libraries(core PUBLIC
     SDL3pp::SDL3pp
-)
-
-target_link_libraries(core PRIVATE
-    ${DISCORD_LIB_PATH}
 )
 
 set(CMAKE_CXX_FLAGS 
@@ -93,10 +82,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 b_embed(core resources/icon.png)
 b_embed(core resources/atlas.png)
 b_embed(core resources/Artifika_font.ttf)
-b_embed(core resources/discord_app_id.txt)
-b_embed(core "${DISCORD_SHARED_LIB_RELATIVE}")
-
-include(cmake/integrateDiscord.cmake)
 
 # ===== Enable testing ===== #
 

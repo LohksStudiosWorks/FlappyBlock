@@ -1,4 +1,3 @@
-#include "utils/discord_sdk.hpp"
 #include "utils/fps_counter.hpp"
 #include "utils/timed_block.hpp"
 #include "textures/resource_manager.hpp"
@@ -27,7 +26,6 @@ private:
 
     std::shared_ptr<ResourceManager> m_resources;
     std::unique_ptr<GameLogic> m_game;
-    DiscordManager m_discord{};
     FpsCounter m_fps;
     sdl_data m_sdl;
     std::jthread m_game_tick_thread;

@@ -46,8 +46,6 @@ SDL::AppResult Core::handle(SDL::Event& event) {
         case SDL::SCANCODE_F11:
             SDL::Log("Would toggle fullscreen here");
             break;
-        //case SDL::SCANCODE_ESCAPE:
-        //    return SDL::APP_SUCCESS;
         }
     }
 
