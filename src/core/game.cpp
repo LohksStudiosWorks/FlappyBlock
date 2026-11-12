@@ -160,7 +160,7 @@ void GameLogic::draw_player() {
         )
     );
 
-    m_resources->draw_texture_rotated(texture_id, 62.0f, m_player_y.get(m_interp), ang);
+    m_resources->draw_texture_rotated(texture_id, 62.0f, static_cast<float>(m_player_y.get(m_interp)), ang);
 }
 
 
