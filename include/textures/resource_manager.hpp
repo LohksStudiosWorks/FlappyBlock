@@ -27,6 +27,21 @@ public:
         BIRD_0_FRAME_0,
         BIRD_0_FRAME_1,
         BIRD_0_FRAME_2,
+        END_FRAME_SCORE,
+        MEDAL_BRONZE,
+        MEDAL_SILVER,
+        MEDAL_GOLD,
+        MEDAL_PLATINUM,
+        NUMBER_0,
+        NUMBER_1,
+        NUMBER_2,
+        NUMBER_3,
+        NUMBER_4,
+        NUMBER_5,
+        NUMBER_6,
+        NUMBER_7,
+        NUMBER_8,
+        NUMBER_9,
     };
 
     ResourceManager(SDL_Renderer* renderer);

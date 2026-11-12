@@ -12,13 +12,15 @@ public:
         MENU,
         HINT_START,
         PLAYING,
-        PAUSE
+        END_PAUSE
     };
     
     GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer);
 
     void draw();
     void tick();
+
+    Uint64 get_points() const;
 
     SDL_AppResult event(SDL_Event& ev);
 private:
@@ -33,13 +35,27 @@ private:
         void operator=(const double& nv);
     };
 
+    struct pipe_pos {
+        async_double off_x{0.0};
+        float y_pos = 0.0f;
+        bool passed_middle = false;
+
+        bool tick();
+        void reset(size_t idx);
+
+        float get_upper() const;
+        float get_lower() const;
+    };
+
     std::shared_ptr<ResourceManager> m_resources;
     SDL_Renderer* const m_renderer_ref;
     Interpolator m_interp;
+    pipe_pos m_pipes[3]{};
     State m_state = State::RANDOMIZE_MENU;
     ResourceManager::TextureId m_sel_bg = ResourceManager::TextureId::BG_DARK;
     Uint64 m_background_offset{};
     Uint64 m_click_time{};
+    Uint64 m_points_usr{};
     //double m_bg_pos = 0.0;
     double m_player_accel_y = 0.0;
     async_double m_player_y{130.0};

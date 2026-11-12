@@ -3,10 +3,13 @@
 #include <cmath>
 
 //constexpr double c_character_speed_x = 1.0;
-constexpr double c_player_x_pos = 62.0f;
-constexpr double c_floor_y_pos = 200.0f;
+constexpr double c_pipes_dist_each = 70.0;
+constexpr double c_player_x_pos = 62.0;
+constexpr double c_floor_y_pos = 200.0;
 constexpr double c_character_gravity_y = 1.5;
 constexpr double c_character_jump_accel_y = 8.0;
+
+static float make_random_y();
 
 GameLogic::GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer)
     : m_resources(resources), m_renderer_ref(renderer)
@@ -23,8 +26,8 @@ void GameLogic::draw() {
     case State::MENU:
         draw_background();
         m_resources->draw_texture(TextId::MENU_LOGO, 27.0f, 36.0f);
-        m_resources->draw_texture(TextId::BUTTON_START, 17.0f, 167.0f);
-        m_resources->draw_texture(TextId::BUTTON_SCORES, 75.0f, 167.0f);
+        m_resources->draw_texture(TextId::BUTTON_START, 46.0f, 167.0f);
+        //m_resources->draw_texture(TextId::BUTTON_SCORES, 75.0f, 167.0f);
         break;
     case State::HINT_START:
         m_background_offset = SDL_GetTicksNS();
@@ -37,6 +40,58 @@ void GameLogic::draw() {
         draw_background();
         draw_floor();
         draw_player();
+        for(auto& i : m_pipes) {
+            const float x = static_cast<float>(i.off_x.get(m_interp));
+            m_resources->draw_texture(TextId::PIPE_GREEN_DOWN, x, i.get_upper());
+            m_resources->draw_texture(TextId::PIPE_GREEN_UP,   x, i.get_lower());
+        }
+
+        {
+            Uint64 m_points_cpy = m_points_usr;
+            const int off_calc = snprintf(nullptr, 0, "%lu", m_points_cpy);
+            const float off_x = (- 12.0f + 6.0f * static_cast<float>(off_calc));
+            float curr_x = off_x;
+            
+            do {
+                Uint64 rem = m_points_cpy % 10lu;
+                m_points_cpy /= 10lu;
+                switch(rem) {
+                case 0: m_resources->draw_texture(TextId::NUMBER_0, 72.0f + curr_x, 20.0f); break;
+                case 1: m_resources->draw_texture(TextId::NUMBER_1, 72.0f + curr_x, 20.0f); break;
+                case 2: m_resources->draw_texture(TextId::NUMBER_2, 72.0f + curr_x, 20.0f); break;
+                case 3: m_resources->draw_texture(TextId::NUMBER_3, 72.0f + curr_x, 20.0f); break;
+                case 4: m_resources->draw_texture(TextId::NUMBER_4, 72.0f + curr_x, 20.0f); break;
+                case 5: m_resources->draw_texture(TextId::NUMBER_5, 72.0f + curr_x, 20.0f); break;
+                case 6: m_resources->draw_texture(TextId::NUMBER_6, 72.0f + curr_x, 20.0f); break;
+                case 7: m_resources->draw_texture(TextId::NUMBER_7, 72.0f + curr_x, 20.0f); break;
+                case 8: m_resources->draw_texture(TextId::NUMBER_8, 72.0f + curr_x, 20.0f); break;
+                case 9: m_resources->draw_texture(TextId::NUMBER_9, 72.0f + curr_x, 20.0f); break;
+                default: break;
+                }
+                curr_x -= 12.0f;
+            } while(m_points_cpy > 0);
+        }
+
+        break;
+    case State::END_PAUSE:
+        m_background_offset = SDL_GetTicksNS();
+        draw_background();
+        draw_floor();
+        m_resources->draw_texture(TextId::MENU_LOGO, 27.0f, 36.0f);
+        m_resources->draw_texture(TextId::BUTTON_START, 46.0f, 167.0f);
+        m_resources->draw_texture(TextId::END_FRAME_SCORE, 16.0f, 85.0f);
+
+        if (m_points_usr >= 10) {
+            if (m_points_usr < 20) {
+                m_resources->draw_texture(TextId::MEDAL_BRONZE, 29.0f, 106.0f);
+            } else if (m_points_usr < 30) {
+                m_resources->draw_texture(TextId::MEDAL_SILVER, 29.0f, 106.0f);
+            } else if (m_points_usr < 40) {
+                m_resources->draw_texture(TextId::MEDAL_GOLD, 29.0f, 106.0f);
+            } else {
+                m_resources->draw_texture(TextId::MEDAL_PLATINUM, 29.0f, 106.0f);
+            }
+        }
         break;
     default:
         break;
@@ -49,24 +104,51 @@ void GameLogic::tick() {
 
     switch(m_state) {
     case State::MENU:
-        m_player_y.curr = m_player_y.last = 130.0;
-        m_player_accel_y = 0.0;
         break;
     case State::PLAYING:
         m_player_accel_y -= c_character_gravity_y;
         m_player_y = m_player_y.curr - m_player_accel_y;
 
-        //c_player_x_pos, m_player_y.curr
-        if (m_resources->check_texture_over_texture(
-            TextId::BIRD_0_FRAME_0, {c_player_x_pos, static_cast<float>(m_player_y.curr)},
-            TextId::FLOOR, {0.0f, c_floor_y_pos + 5.0f}
-        )) {
-            m_state = State::MENU;
+        for(auto& i : m_pipes) {
+            if (i.tick())
+                ++m_points_usr;
+        }
+
+        {
+            const SDL_FPoint player_pos{c_player_x_pos, static_cast<float>(m_player_y.curr)};
+            bool collided = false;
+
+            for(auto& i : m_pipes) {
+                const float x = static_cast<float>(i.off_x.get(m_interp));
+
+                if (m_resources->check_texture_over_texture(
+                    TextId::BIRD_0_FRAME_0, player_pos,
+                    TextId::PIPE_GREEN_DOWN, {x, i.get_upper() - 5.0f}
+                ) || m_resources->check_texture_over_texture(
+                    TextId::BIRD_0_FRAME_0, player_pos,
+                    TextId::PIPE_GREEN_UP, {x, i.get_lower() + 5.0f}
+                )) {
+                    collided = true;
+                    break;
+                }
+            }
+
+            //c_player_x_pos, m_player_y.curr
+            if (collided || m_resources->check_texture_over_texture(
+                TextId::BIRD_0_FRAME_0, player_pos,
+                TextId::FLOOR, {0.0f, c_floor_y_pos + 5.0f}
+            )) {
+                m_state = State::END_PAUSE;
+            }
         }
         break;
     default:
         break;
     }
+}
+
+Uint64 GameLogic::get_points() const {
+    return m_points_usr;
 }
 
 SDL_AppResult GameLogic::event(SDL_Event& ev) {
@@ -80,19 +162,22 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
         SDL_FPoint mouse_conv{ev.button.x, ev.button.y};
 
         switch(m_state) {
+        case State::END_PAUSE:
+            m_state = State::RANDOMIZE_MENU;
+            [[fallthrough]];
         case State::MENU:
-            if (m_resources->check_mouse_over(TextId::MENU_LOGO, {27.0f, 36.0f}, mouse_conv)) {
-                m_sel_bg = m_sel_bg == TextId::BG_LIGHT ? TextId::BG_DARK : TextId::BG_LIGHT;
-            }
-            else if (m_resources->check_mouse_over(TextId::BUTTON_START, {17.0f, 167.0f}, mouse_conv)) {
+            if (m_resources->check_mouse_over(TextId::BUTTON_START, {46.0f, 167.0f}, mouse_conv)) {
                 m_state = State::HINT_START;
-            }
-            else if (m_resources->check_mouse_over(TextId::BUTTON_SCORES, {75.0f, 167.0f}, mouse_conv)) {
-                m_sel_bg = m_sel_bg == TextId::BG_LIGHT ? TextId::BG_DARK : TextId::BG_LIGHT;
             }
 
             break;
         case State::HINT_START:
+            for(size_t p = 0; p < std::size(m_pipes); ++p)
+                m_pipes[p].reset(p);
+
+            m_player_y.curr = m_player_y.last = 130.0;
+            m_player_accel_y = 0.0;
+            m_points_usr = 0ULL;
             m_state = State::PLAYING;
             break;
         case State::PLAYING:
@@ -104,11 +189,13 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
         }
     }
         break;
-    case SDL_EVENT_KEY_UP:
+    case SDL_EVENT_KEY_DOWN:
 
         switch(m_state) {
         case State::MENU:
             switch(ev.key.scancode) {
+            case SDL_SCANCODE_AC_BACK:
+                [[fallthrough]];
             case SDL_SCANCODE_ESCAPE:
                 return SDL_APP_SUCCESS;
             default:
@@ -117,6 +204,8 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
             break;
         case State::HINT_START:
             switch(ev.key.scancode) {
+            case SDL_SCANCODE_AC_BACK:
+                [[fallthrough]];
             case SDL_SCANCODE_ESCAPE:
                 m_state = State::MENU;
             default:
@@ -125,13 +214,25 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
             break;
         case State::PLAYING:
             switch(ev.key.scancode) {
+            case SDL_SCANCODE_AC_BACK:
+                [[fallthrough]];
             case SDL_SCANCODE_ESCAPE:
-                m_state = State::MENU;
+                m_state = State::END_PAUSE;
                 break;
             case SDL_SCANCODE_SPACE:
                 m_player_accel_y = c_character_jump_accel_y;
                 m_click_time = SDL_GetTicksNS();
                 break;
+            default:
+                break;
+            }
+            break;
+        case State::END_PAUSE:
+            switch(ev.key.scancode) {
+            case SDL_SCANCODE_AC_BACK:
+                [[fallthrough]];
+            case SDL_SCANCODE_ESCAPE:
+                m_state = State::MENU;
             default:
                 break;
             }
@@ -187,4 +288,36 @@ double GameLogic::async_double::get(const Interpolator& interp) {
 void GameLogic::async_double::operator=(const double& nv) {
     last = curr;
     curr = nv;
+}
+
+bool GameLogic::pipe_pos::tick() {
+    off_x = off_x.curr - 1.5;
+    if (off_x.curr < -(0.5 * c_pipes_dist_each)) {
+        off_x.last = (off_x.curr += c_pipes_dist_each * 3.0);
+        y_pos = make_random_y();
+    }
+    const bool has_passed = off_x.curr < c_player_x_pos;
+    const bool is_diff = has_passed != passed_middle;
+    passed_middle = has_passed;
+    return is_diff && has_passed;
+}
+
+void GameLogic::pipe_pos::reset(size_t idx) {
+    off_x = 25.0f + static_cast<double>(idx + 3) * c_pipes_dist_each;
+    passed_middle = false;
+    y_pos = make_random_y();
+}
+
+float GameLogic::pipe_pos::get_upper() const {
+    return y_pos - 150.0f;
+}
+
+float GameLogic::pipe_pos::get_lower() const {
+    return y_pos + 80.0f;
+}
+
+float make_random_y() {
+    const auto random = SDL_GetTicksNS() % 1000;
+    const float prop = static_cast<float>(random) * 1e-3;
+    return 20.0f + 85.0f * prop;
 }

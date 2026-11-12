@@ -33,6 +33,21 @@ ResourceManager::ResourceManager(SDL_Renderer* renderer) :
     m_map[TextureId::BIRD_0_FRAME_0]    = {1.0f, 487.0f, 20.0f, 20.0f};
     m_map[TextureId::BIRD_0_FRAME_1]    = {29.0f, 487.0f, 20.0f, 20.0f};
     m_map[TextureId::BIRD_0_FRAME_2]    = {57.0f, 487.0f, 20.0f, 20.0f};
+    m_map[TextureId::END_FRAME_SCORE]   = {3.0f, 259.0f, 113.0f, 57.0f};
+    m_map[TextureId::MEDAL_BRONZE]      = {112.0f, 477.0f, 22.0f, 22.0f};
+    m_map[TextureId::MEDAL_SILVER]      = {112.0f, 453.0f, 22.0f, 22.0f};
+    m_map[TextureId::MEDAL_GOLD]        = {121.0f, 282.0f, 22.0f, 22.0f};
+    m_map[TextureId::MEDAL_PLATINUM]    = {121.0f, 258.0f, 22.0f, 22.0f};
+    m_map[TextureId::NUMBER_0]          = {496.0f,  60.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_1]          = {134.0f, 455.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_2]          = {292.0f, 160.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_3]          = {306.0f, 160.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_4]          = {320.0f, 160.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_5]          = {334.0f, 160.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_6]          = {292.0f, 184.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_7]          = {306.0f, 184.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_8]          = {320.0f, 184.0f, 12.0f, 18.0f};
+    m_map[TextureId::NUMBER_9]          = {334.0f, 184.0f, 12.0f, 18.0f};
 }
 
 ResourceManager::~ResourceManager() {

@@ -16,6 +16,8 @@ Core::Core(int argc, char *argv[]) {
     TTF_Init();
 
     SDL_Log("Setup of screen and peripherals...");
+
+    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
     SDL_SetAppMetadata("FlappyBlock", "1.0", "com.lsw.flappyblock");
     SDL_CreateWindowAndRenderer("Flappy Block", c_default_app_size.x, c_default_app_size.y, c_default_app_flags, &m_sdl.window, &m_sdl.renderer);
     SDL_SetRenderLogicalPresentation(m_sdl.renderer, c_target_app_region.x, c_target_app_region.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
@@ -69,7 +71,7 @@ SDL_AppResult Core::draw() {
 
     m_game->draw();
 
-    m_resources->draw_text(std::format("FPS: {:04.1f}", m_fps.get_avg_fps()), 0, 0);
+    m_resources->draw_text(std::format("{} PTS | FPS: {:04.1f}", m_game->get_points(), m_fps.get_avg_fps()), 0, 0);
 
     SDL_RenderPresent(m_sdl.renderer);
     m_fps.feed();
