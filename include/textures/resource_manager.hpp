@@ -43,9 +43,9 @@ public:
 private:
     const SDL_FRect& get_texture_rect(const TextureId& id) const;
 
-    const b::EmbedInternal::EmbeddedFile& m_atlas;
-    const b::EmbedInternal::EmbeddedFile& m_icon_src;
-    const b::EmbedInternal::EmbeddedFile& m_ttf_src;
+    const b::EmbedInternal::EmbeddedFile m_atlas;
+    const b::EmbedInternal::EmbeddedFile m_icon_src;
+    const b::EmbedInternal::EmbeddedFile m_ttf_src;
     
     SDL_Texture* m_main;
     SDL_Surface* m_icon;
