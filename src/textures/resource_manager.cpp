@@ -2,19 +2,20 @@
 
 constexpr float c_font_size = 10.0f;
 
-SDL_Surface* load_surface_from_mem(const char* data, const size_t len);
-TTF_Font* load_font_from_mem(const char* data, const size_t len, float ptsize);
-SDL_Texture* load_texture_from_mem(SDL_Renderer* renderer, const char* data, const size_t len);
+static SDL_Surface* load_surface_from_mem(const char* data, const size_t len);
+static TTF_Font* load_font_from_mem(const char* data, const size_t len, float ptsize);
+static SDL_Texture* load_texture_from_mem(SDL_Renderer* renderer, const char* data, const size_t len);
+static std::string get_safe(const std::unordered_map<std::string, std::string>& cfg, const std::string& key);
 
-ResourceManager::ResourceManager(SDL_Renderer* renderer) :
+ResourceManager::ResourceManager(SDL_Renderer* renderer, const std::unordered_map<std::string, std::string>& cfg) :
     m_atlas(b::embed<"resources/atlas.png">()),
     m_icon_src(b::embed<"resources/icon.png">()),
     m_ttf_src(b::embed<"resources/Artifika_font.ttf">()),
     m_main(load_texture_from_mem(renderer, m_atlas.data(), m_atlas.size())),
     m_icon(load_surface_from_mem(m_icon_src.data(), m_icon_src.length())),
-    m_font(load_font_from_mem(m_ttf_src.data(), m_ttf_src.size(), c_font_size)),
-    m_text_eng(TTF_CreateRendererTextEngine(renderer)),
-    m_text(TTF_CreateText(m_text_eng, m_font, "Test", 0)),
+    m_font(get_safe(cfg, "debugtext") != "1" ? nullptr : load_font_from_mem(m_ttf_src.data(), m_ttf_src.size(), c_font_size)),
+    m_text_eng(get_safe(cfg, "debugtext") != "1" ? nullptr : TTF_CreateRendererTextEngine(renderer)),
+    m_text(get_safe(cfg, "debugtext") != "1" ? nullptr : TTF_CreateText(m_text_eng, m_font, "Test", 0)),
     m_renderer_ref(renderer)
 {
     m_map[TextureId::BG_LIGHT]          = {0.0f, 0.0f, 144.0f, 256.0f};
@@ -61,9 +62,9 @@ ResourceManager::ResourceManager(SDL_Renderer* renderer) :
 }
 
 ResourceManager::~ResourceManager() {
-    TTF_DestroyText(m_text);
-    TTF_DestroyRendererTextEngine(m_text_eng);
-    TTF_CloseFont(m_font);
+    if (m_text) TTF_DestroyText(m_text);
+    if (m_text_eng) TTF_DestroyRendererTextEngine(m_text_eng);
+    if (m_font) TTF_CloseFont(m_font);
     SDL_DestroyTexture(m_main);
     SDL_DestroySurface(m_icon);
 }
@@ -86,6 +87,7 @@ void ResourceManager::draw_texture_rotated(const TextureId& id, const float x, c
 }
 
 void ResourceManager::draw_text(const std::string_view& text, const float x, const float y, const SDL_Color color) {
+    if (!m_text) return;
     TTF_SetTextString(m_text, text.data(), text.size());
     TTF_SetTextColor(m_text, color.r, color.g, color.b, color.a);
     TTF_DrawRendererText(m_text, x, y);
@@ -133,4 +135,10 @@ SDL_Texture* load_texture_from_mem(SDL_Renderer* renderer, const char* data, con
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     SDL_DestroySurface(surface);
     return texture;
+}
+
+std::string get_safe(const std::unordered_map<std::string, std::string>& cfg, const std::string& key) {
+    const auto it = cfg.find(key);
+    if (it != cfg.end()) return it->second;
+    return "";
 }

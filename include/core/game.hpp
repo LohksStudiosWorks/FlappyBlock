@@ -2,6 +2,7 @@
 
 #include "textures/resource_manager.hpp"
 #include "utils/interpolator.hpp"
+#include "utils/score_manager.hpp"
 
 #include <memory>
 
@@ -50,6 +51,7 @@ private:
     std::shared_ptr<ResourceManager> m_resources;
     SDL_Renderer* const m_renderer_ref;
     Interpolator m_interp;
+    ScoreManager m_score;
     pipe_pos m_pipes[3]{};
     State m_state = State::RANDOMIZE_MENU;
     ResourceManager::TextureId m_sel_bg = ResourceManager::TextureId::BG_DARK;

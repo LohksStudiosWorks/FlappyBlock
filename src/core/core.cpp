@@ -1,6 +1,9 @@
 #include "core/core.hpp"
+#include "utils/file_manager.hpp"
 
 #include <format>
+#include <fstream>
+#include <sstream>
 
 constexpr SDL_Point c_default_app_size = {720, 1280};
 constexpr SDL_Point c_target_app_region = {144, 256};
@@ -12,6 +15,36 @@ Core::Core(int argc, char *argv[]) {
     SDL_Log("Initializing video, audio, and events...");
     SDL_Init(SDL_INIT_VIDEO); //  | SDL_INIT_AUDIO | SDL_INIT_EVENTS
 
+    SDL_Log("Loading config...");
+    {
+        const std::string filepath = get_app_files_path("config.ini");
+
+        std::ifstream file(filepath);
+        if (!file.is_open()) {
+            m_cfg["vsync"] = "1";
+            m_cfg["debugtext"] = "0"; // DISABLES TEXT FONT LOADING!
+
+            std::ofstream file(filepath, std::ios::trunc);
+            if (file.is_open()) {
+                for (const auto& pair : m_cfg) {
+                    file << pair.first << "=" << pair.second << "\n";
+                }
+            }
+        }
+        else {
+            std::string line;
+            while (std::getline(file, line)) {
+                std::istringstream iss(line);
+                std::string key, value;
+                if (std::getline(iss, key, '=') && std::getline(iss, value)) {
+                    m_cfg[key] = value;
+                }
+            }
+        }
+
+        m_flag_fps_draw = m_cfg["debugtext"] == "1";
+    }
+
     SDL_Log("Initializing ttf...");
     TTF_Init();
 
@@ -22,7 +55,13 @@ Core::Core(int argc, char *argv[]) {
     SDL_CreateWindowAndRenderer("Flappy Block", c_default_app_size.x, c_default_app_size.y, c_default_app_flags, &m_sdl.window, &m_sdl.renderer);
     SDL_SetRenderLogicalPresentation(m_sdl.renderer, c_target_app_region.x, c_target_app_region.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
-    m_resources = std::make_shared<ResourceManager>(m_sdl.renderer);
+    if (m_cfg["vsync"] == "1") {
+        if (!SDL_SetRenderVSync(m_sdl.renderer, 1)) {
+            SDL_Log("VSync cannot be disabled: %s", SDL_GetError());
+        }
+    }
+
+    m_resources = std::make_shared<ResourceManager>(m_sdl.renderer, m_cfg);
     SDL_SetWindowIcon(m_sdl.window, m_resources->get_icon());
 
     m_game = std::make_unique<GameLogic>(m_resources, m_sdl.renderer);
@@ -70,8 +109,9 @@ SDL_AppResult Core::draw() {
     SDL_RenderClear(m_sdl.renderer);
 
     m_game->draw();
-
-    m_resources->draw_text(std::format("{} PTS | FPS: {:04.1f}", m_game->get_points(), m_fps.get_avg_fps()), 0, 0);
+    
+    if (m_flag_fps_draw)
+        m_resources->draw_text(std::format("{} PTS | FPS: {:04.1f}", m_game->get_points(), m_fps.get_avg_fps()), 0, 0);
 
     SDL_RenderPresent(m_sdl.renderer);
     m_fps.feed();

@@ -118,7 +118,7 @@ void GameLogic::draw() {
         }
 
         {
-            Uint64 m_points_cpy = static_cast<Uint64>(99999ull);
+            Uint64 m_points_cpy = static_cast<Uint64>(m_score.get_score());
             float curr_x = 112.0f;
             
             do {
@@ -187,6 +187,7 @@ void GameLogic::tick() {
                 TextId::BIRD_0_FRAME_0, player_pos,
                 TextId::FLOOR, {0.0f, c_floor_y_pos + 5.0f}
             )) {
+                m_score.set_score_if_higher(m_points_usr);
                 m_state = State::END_PAUSE;
             }
         }
@@ -207,7 +208,6 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     {
         SDL_ConvertEventToRenderCoordinates(m_renderer_ref, &ev);
-        SDL_Log("Mouse click on %.2f %.2f", ev.button.x, ev.button.y);
         SDL_FPoint mouse_conv{ev.button.x, ev.button.y};
 
         switch(m_state) {
@@ -266,6 +266,7 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
             case SDL_SCANCODE_AC_BACK:
                 [[fallthrough]];
             case SDL_SCANCODE_ESCAPE:
+                m_score.set_score_if_higher(m_points_usr);
                 m_state = State::END_PAUSE;
                 break;
             case SDL_SCANCODE_SPACE:
@@ -281,6 +282,7 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
             case SDL_SCANCODE_AC_BACK:
                 [[fallthrough]];
             case SDL_SCANCODE_ESCAPE:
+                m_score.set_score_if_higher(m_points_usr);
                 m_state = State::MENU;
             default:
                 break;

@@ -54,7 +54,7 @@ public:
         SMALL_NUMBER_9,
     };
 
-    ResourceManager(SDL_Renderer* renderer);
+    ResourceManager(SDL_Renderer* renderer, const std::unordered_map<std::string, std::string>& cfg);
     ~ResourceManager();
 
     SDL_Surface* get_icon() const;

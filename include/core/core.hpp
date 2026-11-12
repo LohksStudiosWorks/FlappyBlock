@@ -23,10 +23,12 @@ private:
         SDL_Renderer* renderer{};
     };
 
+    std::unordered_map<std::string, std::string> m_cfg;
     std::shared_ptr<ResourceManager> m_resources;
     std::unique_ptr<GameLogic> m_game;
     FpsCounter m_fps;
     sdl_data m_sdl;
     std::thread m_game_tick_thread;
     std::atomic_bool m_game_thread_running;
+    bool m_flag_fps_draw = false;
 };
