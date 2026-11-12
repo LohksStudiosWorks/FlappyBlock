@@ -92,6 +92,55 @@ void GameLogic::draw() {
                 m_resources->draw_texture(TextId::MEDAL_PLATINUM, 29.0f, 106.0f);
             }
         }
+
+        {
+            Uint64 m_points_cpy = m_points_usr;
+            float curr_x = 112.0f;
+            
+            do {
+                Uint64 rem = m_points_cpy % 10lu;
+                m_points_cpy /= 10lu;
+                switch(rem) {
+                case 0: m_resources->draw_texture(TextId::SMALL_NUMBER_0, curr_x, 103.0f); break;
+                case 1: m_resources->draw_texture(TextId::SMALL_NUMBER_1, curr_x, 103.0f); break;
+                case 2: m_resources->draw_texture(TextId::SMALL_NUMBER_2, curr_x, 103.0f); break;
+                case 3: m_resources->draw_texture(TextId::SMALL_NUMBER_3, curr_x, 103.0f); break;
+                case 4: m_resources->draw_texture(TextId::SMALL_NUMBER_4, curr_x, 103.0f); break;
+                case 5: m_resources->draw_texture(TextId::SMALL_NUMBER_5, curr_x, 103.0f); break;
+                case 6: m_resources->draw_texture(TextId::SMALL_NUMBER_6, curr_x, 103.0f); break;
+                case 7: m_resources->draw_texture(TextId::SMALL_NUMBER_7, curr_x, 103.0f); break;
+                case 8: m_resources->draw_texture(TextId::SMALL_NUMBER_8, curr_x, 103.0f); break;
+                case 9: m_resources->draw_texture(TextId::SMALL_NUMBER_9, curr_x, 103.0f); break;
+                default: break;
+                }
+                curr_x -= 7.0f;
+            } while(m_points_cpy > 0);
+        }
+
+        {
+            Uint64 m_points_cpy = static_cast<Uint64>(99999ull);
+            float curr_x = 112.0f;
+            
+            do {
+                Uint64 rem = m_points_cpy % 10lu;
+                m_points_cpy /= 10lu;
+                switch(rem) {
+                case 0: m_resources->draw_texture(TextId::SMALL_NUMBER_0, curr_x, 124.0f); break;
+                case 1: m_resources->draw_texture(TextId::SMALL_NUMBER_1, curr_x, 124.0f); break;
+                case 2: m_resources->draw_texture(TextId::SMALL_NUMBER_2, curr_x, 124.0f); break;
+                case 3: m_resources->draw_texture(TextId::SMALL_NUMBER_3, curr_x, 124.0f); break;
+                case 4: m_resources->draw_texture(TextId::SMALL_NUMBER_4, curr_x, 124.0f); break;
+                case 5: m_resources->draw_texture(TextId::SMALL_NUMBER_5, curr_x, 124.0f); break;
+                case 6: m_resources->draw_texture(TextId::SMALL_NUMBER_6, curr_x, 124.0f); break;
+                case 7: m_resources->draw_texture(TextId::SMALL_NUMBER_7, curr_x, 124.0f); break;
+                case 8: m_resources->draw_texture(TextId::SMALL_NUMBER_8, curr_x, 124.0f); break;
+                case 9: m_resources->draw_texture(TextId::SMALL_NUMBER_9, curr_x, 124.0f); break;
+                default: break;
+                }
+                curr_x -= 7.0f;
+            } while(m_points_cpy > 0);
+        }
+
         break;
     default:
         break;

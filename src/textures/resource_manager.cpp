@@ -48,6 +48,16 @@ ResourceManager::ResourceManager(SDL_Renderer* renderer) :
     m_map[TextureId::NUMBER_7]          = {306.0f, 184.0f, 12.0f, 18.0f};
     m_map[TextureId::NUMBER_8]          = {320.0f, 184.0f, 12.0f, 18.0f};
     m_map[TextureId::NUMBER_9]          = {334.0f, 184.0f, 12.0f, 18.0f};
+    m_map[TextureId::SMALL_NUMBER_0]    = {138.0f, 323.0f, 6.0f, 7.0f};
+    m_map[TextureId::SMALL_NUMBER_1]    = {138.0f, 332.0f, 6.0f, 7.0f};
+    m_map[TextureId::SMALL_NUMBER_2]    = {138.0f, 349.0f, 6.0f, 7.0f};
+    m_map[TextureId::SMALL_NUMBER_3]    = {138.0f, 358.0f, 6.0f, 7.0f};
+    m_map[TextureId::SMALL_NUMBER_4]    = {138.0f, 375.0f, 6.0f, 7.0f};
+    m_map[TextureId::SMALL_NUMBER_5]    = {138.0f, 384.0f, 6.0f, 7.0f}; 
+    m_map[TextureId::SMALL_NUMBER_6]    = {138.0f, 401.0f, 6.0f, 7.0f};
+    m_map[TextureId::SMALL_NUMBER_7]    = {138.0f, 410.0f, 6.0f, 7.0f};
+    m_map[TextureId::SMALL_NUMBER_8]    = {138.0f, 427.0f, 6.0f, 7.0f};
+    m_map[TextureId::SMALL_NUMBER_9]    = {138.0f, 436.0f, 6.0f, 7.0f};
 }
 
 ResourceManager::~ResourceManager() {

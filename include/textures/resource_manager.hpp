@@ -42,6 +42,16 @@ public:
         NUMBER_7,
         NUMBER_8,
         NUMBER_9,
+        SMALL_NUMBER_0,
+        SMALL_NUMBER_1,
+        SMALL_NUMBER_2,
+        SMALL_NUMBER_3,
+        SMALL_NUMBER_4,
+        SMALL_NUMBER_5,
+        SMALL_NUMBER_6,
+        SMALL_NUMBER_7,
+        SMALL_NUMBER_8,
+        SMALL_NUMBER_9,
     };
 
     ResourceManager(SDL_Renderer* renderer);
