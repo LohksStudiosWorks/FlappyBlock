@@ -24,10 +24,10 @@ Core::Core(int argc, char *argv[]) {
             m_cfg["vsync"] = "1";
             m_cfg["debugtext"] = "0"; // DISABLES TEXT FONT LOADING!
 
-            std::ofstream file(filepath, std::ios::trunc);
-            if (file.is_open()) {
+            std::ofstream file_out(filepath, std::ios::trunc);
+            if (file_out.is_open()) {
                 for (const auto& pair : m_cfg) {
-                    file << pair.first << "=" << pair.second << "\n";
+                    file_out << pair.first << "=" << pair.second << "\n";
                 }
             }
         }
