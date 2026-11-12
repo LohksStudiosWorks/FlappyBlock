@@ -17,6 +17,7 @@ void GameLogic::draw() {
     case State::RANDOMIZE_MENU:
         m_sel_bg = SDL_GetTicksNS() % 2 == 0 ? TextId::BG_DARK : TextId::BG_LIGHT;
         m_state = State::MENU;
+        [[fallthrough]];
     case State::MENU:
         draw_background();
         m_resources->draw_texture(TextId::MENU_LOGO, 27.0f, 36.0f);

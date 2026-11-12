@@ -56,9 +56,11 @@ target_link_libraries(core PUBLIC
     # SDL_net::SDL_net
 )
 
-set(CMAKE_CXX_FLAGS 
-    "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++"
-)
+if(UNIX AND NOT APPLE)
+    set(CMAKE_CXX_FLAGS 
+        "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++"
+    )
+endif()
 
 target_compile_options(core PRIVATE
     $<$<CONFIG:Release>:-O3>
@@ -82,6 +84,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CONFIG:Release>:-O3>
 )
+
+
+if(MSVC)
+  target_compile_options(core PRIVATE /W4 /WX)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+else()
+  target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
 
 b_embed(core resources/icon.png)
 b_embed(core resources/atlas.png)

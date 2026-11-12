@@ -9,5 +9,5 @@ public:
     ~TimedBlock();
 private:
     const std::chrono::milliseconds m_delta;
-    const std::chrono::system_clock::time_point m_beg;
+    const decltype(std::chrono::high_resolution_clock::now()) m_beg;
 };

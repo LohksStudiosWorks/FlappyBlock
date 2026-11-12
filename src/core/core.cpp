@@ -7,6 +7,8 @@ constexpr SDL_Point c_target_app_region = {144, 256};
 constexpr SDL_WindowFlags c_default_app_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL;// | SDL_WINDOW_FULLSCREEN;
 
 Core::Core(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     SDL_Log("Initializing video, audio, and events...");
     SDL_Init(SDL_INIT_VIDEO); //  | SDL_INIT_AUDIO | SDL_INIT_EVENTS
 
