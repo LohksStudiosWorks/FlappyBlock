@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-constexpr double c_character_speed_x = 1.0;
+//constexpr double c_character_speed_x = 1.0;
 constexpr double c_character_gravity_y = 1.5;
 constexpr double c_character_jump_accel_y = 8.0;
 
@@ -135,16 +135,16 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
 }
 
 void GameLogic::draw_background() {
-    const float x = - std::fmodf((SDL_GetTicksNS() - m_background_offset) * 1.5e-8, 144.0f);
-    m_resources->draw_texture(m_sel_bg, x, 0.0f);
-    m_resources->draw_texture(m_sel_bg, x + 143.9f, 0.0f);
+    const double x = - std::fmod(static_cast<double>(SDL_GetTicksNS() - m_background_offset) * 1.5e-8, 144.0);
+    m_resources->draw_texture(m_sel_bg, static_cast<float>(x), 0.0f);
+    m_resources->draw_texture(m_sel_bg, static_cast<float>(x) + 143.9f, 0.0f);
 }
 
 void GameLogic::draw_floor() {
     using TextId = ResourceManager::TextureId;
 
-    const float x = - std::fmodf((SDL_GetTicksNS() - m_background_offset) * 2.5e-8, 12.0f);
-    m_resources->draw_texture(TextId::FLOOR, x, 200.0f);
+    const double x = - std::fmod(static_cast<double>(SDL_GetTicksNS() - m_background_offset) * 2.5e-8, 12.0);
+    m_resources->draw_texture(TextId::FLOOR, static_cast<float>(x), 200.0f);
 }
 
 void GameLogic::draw_player() {
@@ -160,7 +160,7 @@ void GameLogic::draw_player() {
         )
     );
 
-    m_resources->draw_texture_rotated(texture_id, 62.0, m_player_y.get(m_interp), ang);
+    m_resources->draw_texture_rotated(texture_id, 62.0f, m_player_y.get(m_interp), ang);
 }
 
 

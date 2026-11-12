@@ -40,7 +40,7 @@ private:
     ResourceManager::TextureId m_sel_bg = ResourceManager::TextureId::BG_DARK;
     Uint64 m_background_offset{};
     Uint64 m_click_time{};
-    double m_bg_pos = 0.0;
+    //double m_bg_pos = 0.0;
     double m_player_accel_y = 0.0;
     async_double m_player_y{130.0};
 };
