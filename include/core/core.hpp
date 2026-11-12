@@ -3,10 +3,10 @@
 #include "textures/resource_manager.hpp"
 #include "core/game.hpp"
 
-#include <SDL3pp/SDL3pp.h>
-#include <SDL3pp/SDL3pp_main.h>
-#include <SDL3pp/SDL3pp_image.h>
-#include <SDL3pp/SDL3pp_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include <thread>
 #include <atomic>
@@ -16,12 +16,12 @@ public:
     Core(int argc, char *argv[]);
     ~Core();
 
-    SDL::AppResult handle(SDL::Event& event);
-    SDL::AppResult draw();
+    SDL_AppResult handle(SDL_Event& event);
+    SDL_AppResult draw();
 private:
     struct sdl_data {
-        SDL::Window window{};
-        SDL::Renderer renderer{};
+        SDL_Window* window{};
+        SDL_Renderer* renderer{};
     };
 
     std::shared_ptr<ResourceManager> m_resources;

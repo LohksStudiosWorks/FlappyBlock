@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL3pp/SDL3pp.h>
+#include <SDL3/SDL.h>
 
 class FpsCounter {
 public:
@@ -9,5 +9,5 @@ public:
     double get_avg_fps() const;
 public:
     double m_fps_smooth{};
-    SDL::Uint64 m_last_feed{};
+    Uint64 m_last_feed{};
 };

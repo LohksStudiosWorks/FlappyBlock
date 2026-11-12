@@ -23,12 +23,12 @@ FetchContent_Declare(
     GIT_TAG        release-3.2.2
 )
 FetchContent_Declare(
-    SDL_mixer
+    SDL3_mixer
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
     GIT_TAG        release-3.2.4
 )
 FetchContent_Declare(
-    SDL_image
+    SDL3_image
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
     GIT_TAG        release-3.4.8
 )
@@ -38,14 +38,6 @@ FetchContent_Declare(
 #    GIT_TAG        release-3.2.0
 #)
 
-FetchContent_Declare(
-    SDL3ppExternal
-    GIT_REPOSITORY https://github.com/talesm/SDL3pp.git
-    GIT_TAG        0.11.5
-)
-
-set(CMAKE_SKIP_INSTALL_RULES ON)
-FetchContent_MakeAvailable(SDL3 SDL3_ttf SDL_mixer SDL_image SDL3ppExternal) # SDL_net
-set(CMAKE_SKIP_INSTALL_RULES OFF)
+FetchContent_MakeAvailable(SDL3 SDL3_ttf SDL3_mixer SDL3_image) # SDL_net
 
 message(STATUS "Fetching of Fetching SDL3 done!")

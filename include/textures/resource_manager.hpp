@@ -1,9 +1,9 @@
 #pragma once
 
-#include <SDL3pp/SDL3pp.h>
-#include <SDL3pp/SDL3pp_main.h>
-#include <SDL3pp/SDL3pp_image.h>
-#include <SDL3pp/SDL3pp_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include <battery/embed.hpp>
 
@@ -30,27 +30,30 @@ public:
         BIRD_0_FRAME_2,
     };
 
-    ResourceManager(SDL::Renderer& renderer);
+    ResourceManager(SDL_Renderer* renderer);
+    ~ResourceManager();
+
+    SDL_Surface* get_icon() const;
 
     void draw_texture(const TextureId& id, const float x, const float y) const;
     void draw_texture_rotated(const TextureId& id, const float x, const float y, const double rot) const;
-    void draw_text(const std::string_view& text, const float x, const float y, const SDL::Color color = {255,255,255,255});
+    void draw_text(const std::string_view& text, const float x, const float y, const SDL_Color color = {255,255,255,255});
 
-    bool check_mouse_over(const TextureId& id, const SDL::FPointRaw draw_pos, const SDL::FPointRaw mouse_pos) const;
+    bool check_mouse_over(const TextureId& id, const SDL_FPoint draw_pos, const SDL_FPoint mouse_pos) const;
 private:
-    const SDL::FRect& get_texture_rect(const TextureId& id) const;
+    const SDL_FRect& get_texture_rect(const TextureId& id) const;
 
     const b::EmbedInternal::EmbeddedFile& m_atlas;
     const b::EmbedInternal::EmbeddedFile& m_icon_src;
     const b::EmbedInternal::EmbeddedFile& m_ttf_src;
     
-    const SDL::Texture m_main;
-    const SDL::Surface m_icon;
-    const SDL::Font m_font;
-    SDL::RendererTextEngine m_text_eng;
-    SDL::Text m_text;
+    SDL_Texture* m_main;
+    SDL_Surface* m_icon;
+    TTF_Font* m_font;
+    TTF_TextEngine* m_text_eng;
+    TTF_Text* m_text;
 
-    SDL::Renderer& m_renderer_ref;
+    SDL_Renderer* m_renderer_ref;
 
-    std::unordered_map<TextureId, SDL::FRect> m_map;
+    std::unordered_map<TextureId, SDL_FRect> m_map;
 };

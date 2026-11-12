@@ -10,7 +10,6 @@ project(FlappyBlock
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-set(CMAKE_FIND_PACKAGE_REDIRECTS ON)
 
 set(PROJECT_ROOT_DIR "${CMAKE_SOURCE_DIR}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DUNICODE -D_UNICODE")
@@ -30,7 +29,7 @@ if (MINGW)
 endif()
 
 include(cmake/installBatteryEmbed.cmake)
-include(cmake/installSDL3pp.cmake)
+include(cmake/installSDL3.cmake)
 
 
 # ===== Shared core code ===== #
@@ -50,7 +49,11 @@ target_include_directories(core PUBLIC
 )
 
 target_link_libraries(core PUBLIC
-    SDL3pp::SDL3pp
+    SDL3::SDL3
+    SDL3_ttf::SDL3_ttf
+    SDL3_mixer::SDL3_mixer
+    SDL3_image::SDL3_image
+    # SDL_net::SDL_net
 )
 
 set(CMAKE_CXX_FLAGS 
