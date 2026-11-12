@@ -9,7 +9,8 @@ project(FlappyBlock
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)      # Force satellite libraries (image, mixer, ttf, net) to build statically
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(CMAKE_FIND_PACKAGE_REDIRECTS ON)
 
 set(PROJECT_ROOT_DIR "${CMAKE_SOURCE_DIR}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DUNICODE -D_UNICODE")
