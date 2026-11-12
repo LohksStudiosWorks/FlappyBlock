@@ -2,3 +2,8 @@ build/
 resources/discord_app_id.txt
 .vscode/c_cpp_properties.json
 .cxx/
+android-project/.gradle/file-system.probe
+android-project/.gradle/8.12/executionHistory/
+android-project/.gradle/8.12/fileHashes/
+android-project/.gradle/8.12/fileChanges/
+android-project/.gradle/8.12/buildOutputCleanup/

@@ -83,7 +83,7 @@ if(ANDROID)
         $<$<CONFIG:Release>:-O3>
     )
 else()
-    add_executable(${PROJECT_NAME} 
+    add_executable(${PROJECT_NAME} WIN32
         "${PROJECT_ROOT_DIR}/src/main.cpp"
     )
 
