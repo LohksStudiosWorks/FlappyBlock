@@ -1,37 +1,27 @@
 include(FetchContent)
 
-message(STATUS "Fetching SDL3")
+message(STATUS "Declaring SDL3 and dependencies...")
 
-# --- Force static compilation ---
-set(SDL_SHARED OFF CACHE BOOL "" FORCE)             # Disable dynamic SDL3 shared library (.dll/.so)
-set(SDL_STATIC ON CACHE BOOL "" FORCE)              # Enable static SDL3 library (.lib/.a)
-
-set(SDL3PP_FORCE_BUNDLED OFF CACHE BOOL "" FORCE)   # Uncomment this to make CMake to download SDL and SDL_image for you
-set(SDL3PP_ENABLE_IMAGE ON CACHE BOOL "" FORCE)     # SDL_image; already on by default, set to OFF to disable
-set(SDL3PP_ENABLE_MIXER ON CACHE BOOL "" FORCE)     # Enables SDL_mixer
-set(SDL3PP_ENABLE_NET OFF CACHE BOOL "" FORCE)      # Enables SDL_net
-set(SDL3PP_ENABLE_TTF ON CACHE BOOL "" FORCE)       # Enables SDL_ttf
-set(SDL3IMAGE_AVIF OFF CACHE BOOL "" FORCE)         # Disable this because Windows is poor
-
+# Declare SDL3
 FetchContent_Declare(
-    SDL3
-    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-    GIT_TAG        release-3.4.20
-)
-FetchContent_Declare(
-    SDL3_ttf
-    GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
-    GIT_TAG        release-3.2.2
-)
-FetchContent_Declare(
-    SDL3_mixer
-    GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
-    GIT_TAG        release-3.2.4
+  SDL3
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+  GIT_TAG        release-3.4.20
 )
 FetchContent_Declare(
     SDL3_image
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
     GIT_TAG        release-3.4.8
+)
+FetchContent_Declare(
+    SDL3_ttf
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
+    GIT_TAG        release-3.2.2 
+)
+FetchContent_Declare(
+    SDL3_mixer
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
+    GIT_TAG        release-3.2.4
 )
 #FetchContent_Declare(
 #    SDL_net
@@ -39,6 +29,34 @@ FetchContent_Declare(
 #    GIT_TAG        release-3.2.0
 #)
 
-FetchContent_MakeAvailable(SDL3 SDL3_ttf SDL3_mixer SDL3_image) # SDL_net
+message(STATUS "Setting SDL3 flags...")
 
-message(STATUS "Fetching of Fetching SDL3 done!")
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_TESTS OFF CACHE BOOL "" FORCE)
+set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(SDLIMAGE_VENDORED ON CACHE BOOL "" FORCE)
+set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
+
+set(SDLIMAGE_AVIF OFF CACHE BOOL "" FORCE)
+set(SDLIMAGE_JXL OFF CACHE BOOL "" FORCE)
+set(SDLIMAGE_TIFF OFF CACHE BOOL "" FORCE)
+set(SDLIMAGE_WEBP OFF CACHE BOOL "" FORCE)
+
+set(BUILD_SHARED_LIBS OFF)
+
+message(STATUS "Making SDL3 available...")
+FetchContent_MakeAvailable(SDL3)
+message(STATUS "Making SDL3_image available...")
+FetchContent_MakeAvailable(SDL3_image)
+message(STATUS "Making SDL3_ttf available...")
+FetchContent_MakeAvailable(SDL3_ttf)
+message(STATUS "Making SDL3_mixer available...")
+FetchContent_MakeAvailable(SDL3_mixer)
+#message(STATUS "Making SDL_net available...")
+#FetchContent_MakeAvailable(SDL_net)
+
+# Re-enable it for other libs to have their own settings
+set(BUILD_SHARED_LIBS ON)
+
+message(STATUS "SDL3 is complete.")
