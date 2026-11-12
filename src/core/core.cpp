@@ -49,7 +49,11 @@ SDL_AppResult Core::handle(SDL_Event& event) {
         case SDL_SCANCODE_F11:
             SDL_SetWindowFullscreen(m_sdl.window, !(SDL_GetWindowFlags(m_sdl.window) & SDL_WINDOW_FULLSCREEN));
             break;
+        default:
+            break;
         }
+        break;
+    default:
         break;
     }
 

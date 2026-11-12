@@ -35,6 +35,8 @@ void GameLogic::draw() {
         draw_floor();
         draw_player();
         break;
+    default:
+        break;
     }
 }
 
@@ -49,6 +51,8 @@ void GameLogic::tick() {
     case State::PLAYING:
         m_player_accel_y -= c_character_gravity_y;
         m_player_y = m_player_y.curr - m_player_accel_y;
+        break;
+    default:
         break;
     }
 }
@@ -83,6 +87,8 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
             m_player_accel_y = c_character_jump_accel_y;
             m_click_time = SDL_GetTicksNS();
             break;
+        default:
+            break;
         }
     }
         break;
@@ -93,12 +99,16 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
             switch(ev.key.scancode) {
             case SDL_SCANCODE_ESCAPE:
                 return SDL_APP_SUCCESS;
+            default:
+                break;
             }            
             break;
         case State::HINT_START:
             switch(ev.key.scancode) {
             case SDL_SCANCODE_ESCAPE:
                 m_state = State::MENU;
+            default:
+                break;
             }
             break;
         case State::PLAYING:
@@ -110,9 +120,15 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
                 m_player_accel_y = c_character_jump_accel_y;
                 m_click_time = SDL_GetTicksNS();
                 break;
+            default:
+                break;
             }
             break;
+        default:
+            break;
         }
+    default:
+        break;
     }
     return SDL_APP_CONTINUE;
 }
