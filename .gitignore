@@ -4,6 +4,7 @@ resources/discord_app_id.txt
 .cxx/
 android-project/.gradle/file-system.probe
 android-project/.gradle/8.12/executionHistory/
-android-project/.gradle/8.12/fileHashes/
-android-project/.gradle/8.12/fileChanges/
-android-project/.gradle/8.12/buildOutputCleanup/
+android-project/.gradle/*/fileHashes/
+android-project/.gradle/*/fileChanges/
+android-project/.gradle/buildOutputCleanup/
+android-project/.gradle/*/checksums/
