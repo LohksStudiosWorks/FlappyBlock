@@ -48,7 +48,7 @@ void GameLogic::draw() {
 
         {
             Uint64 m_points_cpy = m_points_usr;
-            const int off_calc = snprintf(nullptr, 0, "%lu", m_points_cpy);
+            const int off_calc = snprintf(nullptr, 0, "%llu", static_cast<unsigned long long>(m_points_cpy));
             const float off_x = (- 12.0f + 6.0f * static_cast<float>(off_calc));
             float curr_x = off_x;
             
@@ -318,6 +318,6 @@ float GameLogic::pipe_pos::get_lower() const {
 
 float make_random_y() {
     const auto random = SDL_GetTicksNS() % 1000;
-    const float prop = static_cast<float>(random) * 1e-3;
+    const float prop = static_cast<float>(random) * 1e-3f;
     return 20.0f + 85.0f * prop;
 }
