@@ -14,6 +14,7 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(PROJECT_ROOT_DIR "${CMAKE_SOURCE_DIR}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DUNICODE -D_UNICODE")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE -D_UNICODE")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/.git" AND NOT ANDROID)
@@ -56,7 +57,7 @@ target_link_libraries(core PUBLIC
 )
 
 # Avoid static lib flags on Android's Clang NDK toolchain
-if(UNIX AND NOT APPLE AND NOT ANDROID)
+if((UNIX AND NOT APPLE AND NOT ANDROID) OR MINGW)
     set(CMAKE_CXX_FLAGS 
         "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++"
     )

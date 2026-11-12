@@ -39,6 +39,7 @@ public:
     void draw_text(const std::string_view& text, const float x, const float y, const SDL_Color color = {255,255,255,255});
 
     bool check_mouse_over(const TextureId& id, const SDL_FPoint draw_pos, const SDL_FPoint mouse_pos) const;
+    bool check_texture_over_texture(const TextureId& id_0, const SDL_FPoint draw_pos_0, const TextureId& id_1, const SDL_FPoint draw_pos_1);
 private:
     const SDL_FRect& get_texture_rect(const TextureId& id) const;
 

@@ -3,6 +3,8 @@
 #include <cmath>
 
 //constexpr double c_character_speed_x = 1.0;
+constexpr double c_player_x_pos = 62.0f;
+constexpr double c_floor_y_pos = 200.0f;
 constexpr double c_character_gravity_y = 1.5;
 constexpr double c_character_jump_accel_y = 8.0;
 
@@ -42,6 +44,7 @@ void GameLogic::draw() {
 }
 
 void GameLogic::tick() {
+    using TextId = ResourceManager::TextureId;
     m_interp.set();
 
     switch(m_state) {
@@ -52,6 +55,14 @@ void GameLogic::tick() {
     case State::PLAYING:
         m_player_accel_y -= c_character_gravity_y;
         m_player_y = m_player_y.curr - m_player_accel_y;
+
+        //c_player_x_pos, m_player_y.curr
+        if (m_resources->check_texture_over_texture(
+            TextId::BIRD_0_FRAME_0, {c_player_x_pos, static_cast<float>(m_player_y.curr)},
+            TextId::FLOOR, {0.0f, c_floor_y_pos + 5.0f}
+        )) {
+            m_state = State::MENU;
+        }
         break;
     default:
         break;
@@ -144,7 +155,7 @@ void GameLogic::draw_floor() {
     using TextId = ResourceManager::TextureId;
 
     const double x = - std::fmod(static_cast<double>(SDL_GetTicksNS() - m_background_offset) * 2.5e-8, 12.0);
-    m_resources->draw_texture(TextId::FLOOR, static_cast<float>(x), 200.0f);
+    m_resources->draw_texture(TextId::FLOOR, static_cast<float>(x), c_floor_y_pos);
 }
 
 void GameLogic::draw_player() {
@@ -160,7 +171,7 @@ void GameLogic::draw_player() {
         )
     );
 
-    m_resources->draw_texture_rotated(texture_id, 62.0f, static_cast<float>(m_player_y.get(m_interp)), ang);
+    m_resources->draw_texture_rotated(texture_id, c_player_x_pos, static_cast<float>(m_player_y.get(m_interp)), ang);
 }
 
 

@@ -53,6 +53,9 @@ jobs:
 
             - name: Build Project
               uses: threeal/cmake-action@v2.1.0
+              with:
+                options: |
+                  CMAKE_BUILD_TYPE=Release
             
             - name: Upload build
               uses: actions/upload-artifact@v7

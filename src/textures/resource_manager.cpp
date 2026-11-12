@@ -69,8 +69,19 @@ void ResourceManager::draw_text(const std::string_view& text, const float x, con
 bool ResourceManager::check_mouse_over(const TextureId& id, const SDL_FPoint draw_pos, const SDL_FPoint mouse_pos) const {
     SDL_FRect rec = get_texture_rect(id);
     rec.x = draw_pos.x;
-    rec.y = draw_pos.y;    
+    rec.y = draw_pos.y;
     return SDL_PointInRectFloat(&mouse_pos, &rec);
+}
+
+bool ResourceManager::check_texture_over_texture(const TextureId& id_0, const SDL_FPoint draw_pos_0, const TextureId& id_1, const SDL_FPoint draw_pos_1) {
+    SDL_FRect rec_0 = get_texture_rect(id_0);
+    SDL_FRect rec_1 = get_texture_rect(id_1);
+    rec_0.x = draw_pos_0.x;
+    rec_0.y = draw_pos_0.y;
+    rec_1.x = draw_pos_1.x;
+    rec_1.y = draw_pos_1.y;
+    return SDL_HasRectIntersectionFloat(&rec_0, &rec_1);
+
 }
 
 const SDL_FRect& ResourceManager::get_texture_rect(const TextureId& id) const {
