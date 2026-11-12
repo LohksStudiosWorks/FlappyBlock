@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.28)
-# CMake made 2026/06/22+
 
 project(FlappyBlock
     VERSION 1.0
@@ -10,13 +9,14 @@ project(FlappyBlock
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 set(PROJECT_ROOT_DIR "${CMAKE_SOURCE_DIR}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DUNICODE -D_UNICODE")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE -D_UNICODE")
 
 
-if (EXISTS "${CMAKE_SOURCE_DIR}/.git")
+if (EXISTS "${CMAKE_SOURCE_DIR}/.git" AND NOT ANDROID)
     execute_process(
         COMMAND git submodule update --init --recursive
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
@@ -53,10 +53,10 @@ target_link_libraries(core PUBLIC
     SDL3_ttf::SDL3_ttf
     SDL3_mixer::SDL3_mixer
     SDL3_image::SDL3_image
-    # SDL_net::SDL_net
 )
 
-if(UNIX AND NOT APPLE)
+# Avoid static lib flags on Android's Clang NDK toolchain
+if(UNIX AND NOT APPLE AND NOT ANDROID)
     set(CMAKE_CXX_FLAGS 
         "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++"
     )
@@ -67,39 +67,63 @@ target_compile_options(core PRIVATE
 )
 
 
-# ===== Main project code ===== #
+# ===== Platform-specific Target (Android Shared Library vs Desktop Executable) ===== #
 
-add_executable(${PROJECT_NAME} 
-    "${PROJECT_ROOT_DIR}/src/main.cpp"
-)
+if(ANDROID)
+    # Android expects a shared library named "main" loaded via JNI by SDLActivity
+    add_library(main SHARED 
+        "${PROJECT_ROOT_DIR}/src/main.cpp"
+    )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/executable"
-)
+    target_link_libraries(main PRIVATE
+        core
+    )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    core
-)
+    target_compile_options(main PRIVATE
+        $<$<CONFIG:Release>:-O3>
+    )
+else()
+    add_executable(${PROJECT_NAME} 
+        "${PROJECT_ROOT_DIR}/src/main.cpp"
+    )
 
-target_compile_options(${PROJECT_NAME} PRIVATE
-    $<$<CONFIG:Release>:-O3>
-)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/executable"
+    )
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        core
+    )
+
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Release>:-O3>
+    )
+endif()
 
 
 if(MSVC)
   target_compile_options(core PRIVATE /W4 /WX)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+  if(ANDROID)
+      target_compile_options(main PRIVATE /W4 /WX)
+  else()
+      target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+  endif()
 else()
   target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic -Werror)
-  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  if(ANDROID)
+      target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  else()
+      target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  endif()
 endif()
 
 b_embed(core resources/icon.png)
 b_embed(core resources/atlas.png)
 b_embed(core resources/Artifika_font.ttf)
 
-# ===== Enable testing ===== #
-
-include(CTest)
-enable_testing()
-add_subdirectory(tests)
+# ===== Enable testing (Desktop only) ===== #
+if(NOT ANDROID)
+    include(CTest)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

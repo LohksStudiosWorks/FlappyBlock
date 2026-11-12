@@ -27,5 +27,6 @@ private:
     std::unique_ptr<GameLogic> m_game;
     FpsCounter m_fps;
     sdl_data m_sdl;
-    std::jthread m_game_tick_thread;
+    std::thread m_game_tick_thread;
+    std::atomic_bool m_game_thread_running;
 };

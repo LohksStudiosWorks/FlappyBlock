@@ -1,0 +1,13 @@
+This is mostly a copy of SDL3's android-project folder.
+
+# Steps:
+
+1. Renamed all `org . libsdl . app` to `com.lsw.flappyblock` (added spaces to avoid triggering this file on replace)
+2. Java version: 21 (`sudo update-alternatives --config java`)
+3. Android tools download: https://developer.android.com/studio#command-line-tools-only
+4. `unzip commandlinetools-linux-*_latest.zip`
+5. `mv cmdline-tools/ latest`
+6. Make ANDROID_HOME the folder which the following commands work.
+7. $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+8. $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;28.2.13676358" "cmake;4.1.2"
+8.a. P.S: It is possible to get latest cmake like `$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "cmake;"`

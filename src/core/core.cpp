@@ -24,8 +24,10 @@ Core::Core(int argc, char *argv[]) {
     SDL_SetWindowIcon(m_sdl.window, m_resources->get_icon());
 
     m_game = std::make_unique<GameLogic>(m_resources, m_sdl.renderer);
-    m_game_tick_thread = std::jthread([this](std::stop_token running) {
-        while(!running.stop_requested()) {
+    
+    m_game_thread_running = true;
+    m_game_tick_thread = std::thread([this] {
+        while(m_game_thread_running) {
             TimedBlock block(std::chrono::milliseconds(50));
             m_game->tick();
         }
@@ -33,7 +35,7 @@ Core::Core(int argc, char *argv[]) {
 }
 
 Core::~Core() {
-    m_game_tick_thread.request_stop();
+    m_game_thread_running = false;
     m_game_tick_thread.join();
     m_game.reset();
     m_resources.reset();
