@@ -11,6 +11,7 @@ set(SDL3PP_ENABLE_IMAGE ON CACHE BOOL "" FORCE)     # SDL_image; already on by d
 set(SDL3PP_ENABLE_MIXER ON CACHE BOOL "" FORCE)     # Enables SDL_mixer
 set(SDL3PP_ENABLE_NET OFF CACHE BOOL "" FORCE)      # Enables SDL_net
 set(SDL3PP_ENABLE_TTF ON CACHE BOOL "" FORCE)       # Enables SDL_ttf
+set(SDL3IMAGE_AVIF OFF CACHE BOOL "" FORCE)         # Disable this because Windows is poor
 
 FetchContent_Declare(
     SDL3

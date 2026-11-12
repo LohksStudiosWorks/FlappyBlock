@@ -7,7 +7,7 @@
 
 void Interpolator::set() {
     const uint64_t current = SDL_GetTicksNS();
-    m_last_delta = std::max(1UL, current - std::exchange(m_last_set, current));
+    m_last_delta = std::max(static_cast<uint64_t>(1ULL), current - std::exchange(m_last_set, current));
 }
 
 double Interpolator::get_prop() const {
