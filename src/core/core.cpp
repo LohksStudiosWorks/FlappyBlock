@@ -50,7 +50,7 @@ Core::Core(int argc, char *argv[]) {
 
     SDL_Log("Setup of screen and peripherals...");
 
-    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
+    //SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
     SDL_SetAppMetadata("FlappyBlock", "1.0", "com.lsw.flappyblock");
     SDL_CreateWindowAndRenderer("Flappy Block", c_default_app_size.x, c_default_app_size.y, c_default_app_flags, &m_sdl.window, &m_sdl.renderer);
     SDL_SetRenderLogicalPresentation(m_sdl.renderer, c_target_app_region.x, c_target_app_region.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);

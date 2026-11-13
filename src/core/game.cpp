@@ -13,7 +13,11 @@ constexpr double c_character_jump_accel_y = 8.0;
 static float make_random_y();
 
 GameLogic::GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer)
-    : m_resources(resources), m_cloud_version_async(std::async(std::launch::async, get_latest_version)), m_renderer_ref(renderer)
+    : m_resources(resources),
+#if (IS_ANDROID == 0)
+    m_cloud_version_async(std::async(std::launch::async, get_latest_version)),
+#endif
+    m_renderer_ref(renderer)
 {}
 
 void GameLogic::draw() {
@@ -161,6 +165,7 @@ void GameLogic::tick() {
 
     switch(m_state) {
     case State::MENU:
+#if (IS_ANDROID == 0)
         if (m_cloud_version_str.empty() && m_cloud_version_async.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
             m_cloud_version_str = m_cloud_version_async.get();
             if (m_cloud_version_str.empty()) {
@@ -171,6 +176,7 @@ void GameLogic::tick() {
                 m_has_update = m_cloud_version_str != c_version;
             }
         }
+#endif
         break;
     case State::PLAYING:
         m_player_accel_y -= c_character_gravity_y;

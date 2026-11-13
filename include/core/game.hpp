@@ -10,6 +10,10 @@
 #ifndef GAME_VERSION
 #error "Game version not set?"
 #endif
+#ifndef IS_ANDROID
+#error "Check for Android not set?"
+#endif
+
 
 constexpr char c_version[] = GAME_VERSION;
 
@@ -57,7 +61,9 @@ private:
 
     std::shared_ptr<ResourceManager> m_resources;
     std::future<std::string> m_cloud_version_async;
+#if (IS_ANDROID == 0)
     std::string m_cloud_version_str;
+#endif
     SDL_Renderer* const m_renderer_ref;
     Interpolator m_interp;
     ScoreManager m_score;

@@ -1,4 +1,6 @@
 #include "utils/update_check.hpp"
+
+#if (IS_ANDROID == 0)
 #include <curl/curl.h>
 #include <cstdint>
 #include <regex>
@@ -49,3 +51,4 @@ std::string download(const std::string& uri) {
 
     return res == CURLE_OK ? data : std::string{};
 }
+#endif

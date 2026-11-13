@@ -37,7 +37,10 @@ if (MINGW)
     include(cmake/MinGWFix.cmake)
 endif()
 
-include(cmake/installLibCurl.cmake)
+if (NOT ANDROID)
+    include(cmake/installLibCurl.cmake)
+endif()
+
 include(cmake/installBatteryEmbed.cmake)
 include(cmake/installSDL3.cmake)
 
@@ -64,12 +67,11 @@ target_link_libraries(core PUBLIC
     SDL3_mixer::SDL3_mixer
     SDL3_image::SDL3_image
     #SDL3_net::SDL3_net
-    libcurl
 )
 
 if(NOT ANDROID)
     target_link_libraries(core PUBLIC
-        ${CURL_LIBRARIES}
+        libcurl
     )
 endif()
 
@@ -112,19 +114,19 @@ if(MSVC)
     target_compile_options(core PRIVATE /W4)
     if(ANDROID)
         target_compile_options(main PRIVATE /W4)
-        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}")
+        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" "IS_ANDROID=1")
     else()
         target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}")
+        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" "IS_ANDROID=0")
     endif()
 else()
     target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
     if(ANDROID)
         target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic)
-        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}")
+        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" "IS_ANDROID=1")
     else()
         target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}")
+        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" "IS_ANDROID=0")
     endif()
 endif()
 
