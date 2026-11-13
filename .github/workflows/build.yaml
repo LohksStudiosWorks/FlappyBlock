@@ -16,30 +16,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
-
-      - name: Setup 7-Zip
-        uses: milliewalky/setup-7-zip@v2
       
-      - name: Setup Linux dependencies and resources
-        if: matrix.os == 'ubuntu-latest'
-        shell: bash
-        run: |
-          # Setup dependencies
-          sudo apt update
-          sudo apt install -y libasound2-dev libpulse-dev libaudio-dev \
-              libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev \
-              libxcursor-dev libxi-dev libxinerama-dev libxss-dev libgl1-mesa-dev \
-              libdbus-1-dev libvulkan-dev libwayland-dev libxkbcommon-dev \
-              libegl1-mesa-dev libibus-1.0-dev libusb-1.0-0-dev libxtst-dev \
-              libfreetype6-dev libharfbuzz-dev libpng-dev libwebp-dev \
-              libtiff-dev libjpeg-dev
-
-      - name: Build Project
-        uses: threeal/cmake-action@v2.1.0
-        with:
-          options: |
-            CMAKE_BUILD_TYPE=Release
-          build-args: --config Release
+      - name: Setup and Build Release
+        uses: LunarisLib/actions/SetupBuildSDL3@revamp
       
       - name: Upload build (under Release for Windows)
         if: matrix.os == 'windows-latest'
@@ -87,7 +66,8 @@ jobs:
 
       - name: Make Gradle Wrapper Executable
         run: |
-          chmod +x gradlew
+          ls
+          chmod +x ./gradlew
 
       - name: Build Signed Release Bundle (AAB) & APK
         env:
