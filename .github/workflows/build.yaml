@@ -1,65 +1,115 @@
 name: Build
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-    build:
-        strategy:
-            fail-fast: false
-            max-parallel: 3
-            matrix:
-                os: [ubuntu-latest, windows-latest, macos-latest]
-        runs-on: ${{ matrix.os }}
-        steps:
-            - uses: actions/checkout@v7
-#              with:
-#                submodules: recursive
-#                token: ${{ secrets.DISCORD_SDK_PAT }}
+  build-pc:
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
 
-            - name: Setup 7-Zip
-              uses: milliewalky/setup-7-zip@v2
-            
-            - name: Setup Linux dependencies and resources
-              if: matrix.os == 'ubuntu-latest'
-              shell: bash
-              run: |
-                # Setup dependencies
-                sudo apt update
-                sudo apt install -y libasound2-dev libpulse-dev libaudio-dev \
-                  libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev \
-                  libxcursor-dev libxi-dev libxinerama-dev libxss-dev libgl1-mesa-dev \
-                  libdbus-1-dev libvulkan-dev libwayland-dev libxkbcommon-dev \
-                  libegl1-mesa-dev libibus-1.0-dev libusb-1.0-0-dev libxtst-dev \
-                  libfreetype6-dev libharfbuzz-dev libpng-dev libwebp-dev \
-                  libtiff-dev libjpeg-dev
+      - name: Setup 7-Zip
+        uses: milliewalky/setup-7-zip@v2
+      
+      - name: Setup Linux dependencies and resources
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          # Setup dependencies
+          sudo apt update
+          sudo apt install -y libasound2-dev libpulse-dev libaudio-dev \
+              libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev \
+              libxcursor-dev libxi-dev libxinerama-dev libxss-dev libgl1-mesa-dev \
+              libdbus-1-dev libvulkan-dev libwayland-dev libxkbcommon-dev \
+              libegl1-mesa-dev libibus-1.0-dev libusb-1.0-0-dev libxtst-dev \
+              libfreetype6-dev libharfbuzz-dev libpng-dev libwebp-dev \
+              libtiff-dev libjpeg-dev
 
-                ## Disabled Discord for now
-                # mkdir -p resources
-                # echo "${{ secrets.DISCORD_APP_CLIENT_ID }}" > resources/discord_app_id.txt
-                # chmod +x ./unzip_sdk.sh
-                # ./unzip_sdk.sh
+      - name: Build Project
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            CMAKE_BUILD_TYPE=Release
+          build-args: --config Release
+      
+      - name: Upload build (under Release for Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: UPLOAD_${{ matrix.os }}
+          path: build/bin/executable/Release
 
-            - name: Setup Windows dependencies and resources
-              if: matrix.os == 'windows-latest'
-              shell: pwsh
-              run: |
-                # Setup dependencies
+      - name: Upload build (default path)
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: UPLOAD_${{ matrix.os }}
+          path: build/bin/executable
 
-                ## Disabled Discord for now
-                #New-Item -ItemType Directory -Force -Path resources
-                #"${{ secrets.DISCORD_APP_CLIENT_ID }}" > resources/discord_app_id.txt
-                #./unzip_sdk.ps1
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
 
-            - name: Build Project
-              uses: threeal/cmake-action@v2.1.0
-              with:
-                options: |
-                  CMAKE_BUILD_TYPE=Release
-                build-args: --config Release
-            
-            - name: Upload build
-              uses: actions/upload-artifact@v7
-              with:
-                name: UPLOAD_${{ matrix.os }}
-                path: build/bin/executable
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Install NDK and Build Tools
+        run: |
+          # Calls sdkmanager to install requirements
+          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;28.2.13676358" "cmake;4.1.2"
+
+      - name: Go to correct folder
+        run: |
+          # Go to android project folder
+          cd android-project
+
+      - name: Decode Release Keystore
+        run: |
+          # Decode base64 key of the project to keys
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > release-key.jks
+
+      - name: Make Gradle Wrapper Executable
+        run: |
+          chmod +x gradlew
+
+      - name: Build Signed Release Bundle (AAB) & APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          # Build APK and AAR (if one day we go to the Play Store ;P)
+          ./gradlew bundleRelease assembleRelease
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-artifacts
+          path: |
+            app/build/outputs/bundle/release/*.aab
+            app/build/outputs/apk/release/*.apk
+
+  release:
+    needs: [build-pc, build-android]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make Release
+        uses: LunarisLib/actions/Release@revamp
