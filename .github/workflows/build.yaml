@@ -54,37 +54,28 @@ jobs:
           # Calls sdkmanager to install requirements
           sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;28.2.13676358" "cmake;4.1.2"
 
-      - name: Go to correct folder
-        run: |
-          # Go to android project folder
-          cd android-project
-
       - name: Decode Release Keystore
         run: |
           # Decode base64 key of the project to keys
-          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > release-key.jks
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > android-project/release-key.jks
 
-      - name: Make Gradle Wrapper Executable
-        run: |
-          ls
-          chmod +x ./gradlew
-
-      - name: Build Signed Release Bundle (AAB) & APK
+      - name: Run build
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           # Build APK and AAR (if one day we go to the Play Store ;P)
-          ./gradlew bundleRelease assembleRelease
+          chmod +x android_build_release.sh
+          ./android_build_release.sh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v7
         with:
           name: release-artifacts
           path: |
-            app/build/outputs/bundle/release/*.aab
-            app/build/outputs/apk/release/*.apk
+            android-project/app/build/outputs/bundle/release/*.aab
+            android-project/app/build/outputs/apk/release/*.apk
 
   release:
     needs: [build-pc, build-android]
