@@ -56,6 +56,7 @@ jobs:
               with:
                 options: |
                   CMAKE_BUILD_TYPE=Release
+                build-args: --config Release
             
             - name: Upload build
               uses: actions/upload-artifact@v7

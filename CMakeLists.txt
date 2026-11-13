@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.28)
 
 project(FlappyBlock
-    VERSION 1.0
-    DESCRIPTION "FlappyBlock is a copy of a popular game made in C/C++ with SDL3"
+    VERSION 2.0
+    DESCRIPTION "FlappyBlock is a remake of a popular game made in C/C++ with SDL3"
     LANGUAGES CXX
 )
 
@@ -63,9 +63,9 @@ if((UNIX AND NOT APPLE AND NOT ANDROID) OR MINGW)
     )
 endif()
 
-#target_compile_options(core PRIVATE
-#    $<$<CONFIG:Release>:-O3>
-#)
+target_compile_options(core PRIVATE
+    $<$<CONFIG:Release>:-O3>
+)
 
 
 # ===== Platform-specific Target (Android Shared Library vs Desktop Executable) ===== #
@@ -80,9 +80,9 @@ if(ANDROID)
         core
     )
 
-#    target_compile_options(main PRIVATE
-#        $<$<CONFIG:Release>:-O3>
-#    )
+    target_compile_options(main PRIVATE
+        $<$<CONFIG:Release>:-O3>
+    )
 else()
     add_executable(${PROJECT_NAME} WIN32
         "${PROJECT_ROOT_DIR}/src/main.cpp"
@@ -110,22 +110,11 @@ if(MSVC)
       target_compile_options(${PROJECT_NAME} PRIVATE /W4)
   endif()
 else()
-  # Combine architecture and warning flags together
-  target_compile_options(core PRIVATE 
-      -march=core2 
-      -Wall -Wextra -Wpedantic
-  )
-  
+  target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
   if(ANDROID)
-      target_compile_options(main PRIVATE 
-          -march=core2 
-          -Wall -Wextra -Wpedantic
-      )
+      target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic)
   else()
-      target_compile_options(${PROJECT_NAME} PRIVATE 
-          -march=core2 
-          -Wall -Wextra -Wpedantic
-      )
+      target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
   endif()
 endif()
 
