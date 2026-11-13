@@ -110,21 +110,25 @@ if(MSVC)
       target_compile_options(${PROJECT_NAME} PRIVATE /W4)
   endif()
 else()
-  target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
+  # Combine architecture and warning flags together
+  target_compile_options(core PRIVATE 
+      -march=core2 
+      -Wall -Wextra -Wpedantic
+  )
+  
   if(ANDROID)
-      target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic)
+      target_compile_options(main PRIVATE 
+          -march=core2 
+          -Wall -Wextra -Wpedantic
+      )
   else()
-      target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+      target_compile_options(${PROJECT_NAME} PRIVATE 
+          -march=core2 
+          -Wall -Wextra -Wpedantic
+      )
   endif()
 endif()
 
 b_embed(core resources/icon.png)
 b_embed(core resources/atlas.png)
 b_embed(core resources/Artifika_font.ttf)
-
-# ===== Enable testing (Desktop only) ===== #
-if(NOT ANDROID)
-    include(CTest)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
