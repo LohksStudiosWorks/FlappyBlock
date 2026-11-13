@@ -204,96 +204,74 @@ Uint64 GameLogic::get_points() const {
 SDL_AppResult GameLogic::event(SDL_Event& ev) {
     using TextId = ResourceManager::TextureId;
 
-    switch(ev.type) {
-    case SDL_EVENT_MOUSE_BUTTON_DOWN:
-    {
-        SDL_ConvertEventToRenderCoordinates(m_renderer_ref, &ev);
-        SDL_FPoint mouse_conv{ev.button.x, ev.button.y};
+    if (ev.type != SDL_EVENT_MOUSE_BUTTON_DOWN && ev.type != SDL_EVENT_KEY_DOWN)
+        return SDL_APP_CONTINUE;
 
-        switch(m_state) {
-        case State::END_PAUSE:
-            m_state = State::RANDOMIZE_MENU;
-            [[fallthrough]];
-        case State::MENU:
+    SDL_FPoint mouse_conv{-1.0f, -1.0f};
+
+    if (ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+        SDL_ConvertEventToRenderCoordinates(m_renderer_ref, &ev);
+        mouse_conv = {ev.button.x, ev.button.y};
+    }
+
+    const bool is_back = ev.type == SDL_EVENT_KEY_DOWN && (
+        ev.key.scancode == SDL_SCANCODE_AC_BACK ||
+        ev.key.scancode == SDL_SCANCODE_ESCAPE
+    );
+
+    switch(m_state) {
+
+    case State::END_PAUSE:
+        if (ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             if (m_resources->check_mouse_over(TextId::BUTTON_START, {46.0f, 167.0f}, mouse_conv)) {
                 m_state = State::HINT_START;
             }
+        } else if (is_back) {
+            m_state = State::RANDOMIZE_MENU;
+        } else {
+            m_state = State::HINT_START;
+        }
+        break;
 
-            break;
-        case State::HINT_START:
+    case State::MENU:
+        if (ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+            if (m_resources->check_mouse_over(TextId::BUTTON_START, {46.0f, 167.0f}, mouse_conv)) {
+                m_state = State::HINT_START;
+            }
+        } else if (is_back) {
+            return SDL_APP_SUCCESS;
+        } else {
+            m_state = State::HINT_START;
+        }
+        break;
+
+    case State::HINT_START:
+        if (is_back) {
+            m_state = State::RANDOMIZE_MENU;
+        } else {
             for(size_t p = 0; p < std::size(m_pipes); ++p)
                 m_pipes[p].reset(p);
 
             m_player_y.curr = m_player_y.last = 130.0;
             m_player_accel_y = 0.0;
             m_points_usr = 0ULL;
+            m_click_time = SDL_GetTicksNS();
             m_state = State::PLAYING;
-            break;
-        case State::PLAYING:
+        }
+        break;
+    case State::PLAYING:
+        if (is_back) {
+            m_score.set_score_if_higher(m_points_usr);
+            m_state = State::END_PAUSE;
+        } else {
             m_player_accel_y = c_character_jump_accel_y;
             m_click_time = SDL_GetTicksNS();
-            break;
-        default:
-            break;
         }
-    }
         break;
-    case SDL_EVENT_KEY_DOWN:
-
-        switch(m_state) {
-        case State::MENU:
-            switch(ev.key.scancode) {
-            case SDL_SCANCODE_AC_BACK:
-                [[fallthrough]];
-            case SDL_SCANCODE_ESCAPE:
-                return SDL_APP_SUCCESS;
-            default:
-                break;
-            }            
-            break;
-        case State::HINT_START:
-            switch(ev.key.scancode) {
-            case SDL_SCANCODE_AC_BACK:
-                [[fallthrough]];
-            case SDL_SCANCODE_ESCAPE:
-                m_state = State::MENU;
-            default:
-                break;
-            }
-            break;
-        case State::PLAYING:
-            switch(ev.key.scancode) {
-            case SDL_SCANCODE_AC_BACK:
-                [[fallthrough]];
-            case SDL_SCANCODE_ESCAPE:
-                m_score.set_score_if_higher(m_points_usr);
-                m_state = State::END_PAUSE;
-                break;
-            case SDL_SCANCODE_SPACE:
-                m_player_accel_y = c_character_jump_accel_y;
-                m_click_time = SDL_GetTicksNS();
-                break;
-            default:
-                break;
-            }
-            break;
-        case State::END_PAUSE:
-            switch(ev.key.scancode) {
-            case SDL_SCANCODE_AC_BACK:
-                [[fallthrough]];
-            case SDL_SCANCODE_ESCAPE:
-                m_score.set_score_if_higher(m_points_usr);
-                m_state = State::MENU;
-            default:
-                break;
-            }
-            break;
-        default:
-            break;
-        }
     default:
         break;
     }
+
     return SDL_APP_CONTINUE;
 }
 

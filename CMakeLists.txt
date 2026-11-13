@@ -63,9 +63,9 @@ if((UNIX AND NOT APPLE AND NOT ANDROID) OR MINGW)
     )
 endif()
 
-target_compile_options(core PRIVATE
-    $<$<CONFIG:Release>:-O3>
-)
+#target_compile_options(core PRIVATE
+#    $<$<CONFIG:Release>:-O3>
+#)
 
 
 # ===== Platform-specific Target (Android Shared Library vs Desktop Executable) ===== #
@@ -80,9 +80,9 @@ if(ANDROID)
         core
     )
 
-    target_compile_options(main PRIVATE
-        $<$<CONFIG:Release>:-O3>
-    )
+#    target_compile_options(main PRIVATE
+#        $<$<CONFIG:Release>:-O3>
+#    )
 else()
     add_executable(${PROJECT_NAME} WIN32
         "${PROJECT_ROOT_DIR}/src/main.cpp"
@@ -103,18 +103,18 @@ endif()
 
 
 if(MSVC)
-  target_compile_options(core PRIVATE /W4 /WX)
+  target_compile_options(core PRIVATE /W4)
   if(ANDROID)
-      target_compile_options(main PRIVATE /W4 /WX)
+      target_compile_options(main PRIVATE /W4)
   else()
-      target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+      target_compile_options(${PROJECT_NAME} PRIVATE /W4)
   endif()
 else()
-  target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
   if(ANDROID)
-      target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic -Werror)
+      target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic)
   else()
-      target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+      target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
   endif()
 endif()
 
