@@ -62,14 +62,14 @@ FetchContent_MakeAvailable(SDL3_mixer)
 #message(STATUS "Making SDL_net available...")
 #FetchContent_MakeAvailable(SDL_net)
 
-if(NOT MSVC)
-    set(SDL_FETCHED_TARGETS SDL3-static SDL3_image SDL3_ttf SDL3_mixer) # SDL_net
-    foreach(target_name ${SDL_FETCHED_TARGETS})
-        if(TARGET ${target_name})
-            target_compile_options(${target_name} PRIVATE -O2 -fno-fast-math)
-        endif()
-    endforeach()
-endif()
+#if(NOT MSVC)
+#    set(SDL_FETCHED_TARGETS SDL3-static SDL3_image SDL3_ttf SDL3_mixer) # SDL_net
+#    foreach(target_name ${SDL_FETCHED_TARGETS})
+#        if(TARGET ${target_name})
+#            target_compile_options(${target_name} PRIVATE -O2 -fno-fast-math)
+#        endif()
+#    endforeach()
+#endif()
 
 # Re-enable it for other libs to have their own settings
 set(BUILD_SHARED_LIBS ON)

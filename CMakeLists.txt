@@ -64,7 +64,7 @@ if((UNIX AND NOT APPLE AND NOT ANDROID) OR MINGW)
 endif()
 
 target_compile_options(core PRIVATE
-    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Release>:-O2;-fno-fast-math>
 )
 
 
@@ -81,7 +81,7 @@ if(ANDROID)
     )
 
     target_compile_options(main PRIVATE
-        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:Release>:-O2;-fno-fast-math>
     )
 else()
     add_executable(${PROJECT_NAME} WIN32
@@ -97,7 +97,7 @@ else()
     )
 
     target_compile_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:Release>:-O2;-fno-fast-math>
     )
 endif()
 
