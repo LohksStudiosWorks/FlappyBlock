@@ -16,8 +16,6 @@ public:
         FLOOR,
         PIPE_GREEN_UP,
         PIPE_GREEN_DOWN,
-        PIPE_COPPER_UP,
-        PIPE_COPPER_DOWN,
         SIGN_GET_READY,
         SIGN_GAME_OVER,
         SIGN_TAP_HINT,
@@ -52,6 +50,9 @@ public:
         SMALL_NUMBER_7,
         SMALL_NUMBER_8,
         SMALL_NUMBER_9,
+        UPDATE_LABEL,
+        BACK_BTN,
+        CLOSE_BTN,
     };
 
     ResourceManager(SDL_Renderer* renderer, const std::unordered_map<std::string, std::string>& cfg);

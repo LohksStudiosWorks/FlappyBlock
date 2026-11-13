@@ -5,6 +5,13 @@
 #include "utils/score_manager.hpp"
 
 #include <memory>
+#include <future>
+
+#ifndef GAME_VERSION
+#error "Game version not set?"
+#endif
+
+constexpr char c_version[] = GAME_VERSION;
 
 class GameLogic {
 public:
@@ -49,16 +56,19 @@ private:
     };
 
     std::shared_ptr<ResourceManager> m_resources;
+    std::future<std::string> m_cloud_version_async;
+    std::string m_cloud_version_str;
     SDL_Renderer* const m_renderer_ref;
     Interpolator m_interp;
     ScoreManager m_score;
     pipe_pos m_pipes[3]{};
     State m_state = State::RANDOMIZE_MENU;
     ResourceManager::TextureId m_sel_bg = ResourceManager::TextureId::BG_DARK;
-    Uint64 m_background_offset{};
+    Uint64 m_game_time_offset{};
     Uint64 m_click_time{};
     Uint64 m_points_usr{};
     //double m_bg_pos = 0.0;
     double m_player_accel_y = 0.0;
     async_double m_player_y{130.0};
+    bool m_has_update = false;
 };

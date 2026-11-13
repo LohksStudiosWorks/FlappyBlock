@@ -1,4 +1,5 @@
 #include "core/game.hpp"
+#include "utils/update_check.hpp"
 
 #include <cmath>
 
@@ -12,7 +13,7 @@ constexpr double c_character_jump_accel_y = 8.0;
 static float make_random_y();
 
 GameLogic::GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer)
-    : m_resources(resources), m_renderer_ref(renderer)
+    : m_resources(resources), m_cloud_version_async(std::async(std::launch::async, get_latest_version)), m_renderer_ref(renderer)
 {}
 
 void GameLogic::draw() {
@@ -27,14 +28,17 @@ void GameLogic::draw() {
         draw_background();
         m_resources->draw_texture(TextId::MENU_LOGO, 27.0f, 36.0f);
         m_resources->draw_texture(TextId::BUTTON_START, 46.0f, 167.0f);
+        m_resources->draw_texture(TextId::CLOSE_BTN, 2.0f, 2.0f);
         //m_resources->draw_texture(TextId::BUTTON_SCORES, 75.0f, 167.0f);
+        if (m_has_update) m_resources->draw_texture(TextId::UPDATE_LABEL, 70.0f, 2.0f);
         break;
     case State::HINT_START:
-        m_background_offset = SDL_GetTicksNS();
+        m_game_time_offset = SDL_GetTicksNS();
         draw_background();
         draw_floor();
+        m_resources->draw_texture(TextId::BACK_BTN, 2.0f, 2.0f);
         m_resources->draw_texture(TextId::SIGN_GET_READY, 24.0f, 34.0f);
-        m_resources->draw_texture(TextId::SIGN_TAP_HINT, 43.0f, 130.0f + 10.0f * sinf(SDL_GetTicksNS() * 2.5e-9f));
+        m_resources->draw_texture(TextId::SIGN_TAP_HINT, 43.0f, 149.0f + 7.0f * sinf(SDL_GetTicksNS() * 2.5e-9f));
         break;
     case State::PLAYING:
         draw_background();
@@ -74,11 +78,15 @@ void GameLogic::draw() {
 
         break;
     case State::END_PAUSE:
-        m_background_offset = SDL_GetTicksNS();
+        m_game_time_offset = SDL_GetTicksNS();
         draw_background();
         draw_floor();
-        m_resources->draw_texture(TextId::MENU_LOGO, 27.0f, 36.0f);
-        m_resources->draw_texture(TextId::BUTTON_START, 46.0f, 167.0f);
+        m_resources->draw_texture(TextId::BACK_BTN, 2.0f, 2.0f);
+        m_resources->draw_texture(TextId::SIGN_GAME_OVER, 24.0f, 36.0f);
+        
+        if (SDL_GetTicksNS() - m_click_time > static_cast<Uint64>(1'000'000'000ULL))
+            m_resources->draw_texture(TextId::BUTTON_START, 46.0f, 167.0f);
+
         m_resources->draw_texture(TextId::END_FRAME_SCORE, 16.0f, 85.0f);
 
         if (m_points_usr >= 10) {
@@ -101,19 +109,19 @@ void GameLogic::draw() {
                 Uint64 rem = m_points_cpy % 10lu;
                 m_points_cpy /= 10lu;
                 switch(rem) {
-                case 0: m_resources->draw_texture(TextId::SMALL_NUMBER_0, curr_x, 103.0f); break;
-                case 1: m_resources->draw_texture(TextId::SMALL_NUMBER_1, curr_x, 103.0f); break;
-                case 2: m_resources->draw_texture(TextId::SMALL_NUMBER_2, curr_x, 103.0f); break;
-                case 3: m_resources->draw_texture(TextId::SMALL_NUMBER_3, curr_x, 103.0f); break;
-                case 4: m_resources->draw_texture(TextId::SMALL_NUMBER_4, curr_x, 103.0f); break;
-                case 5: m_resources->draw_texture(TextId::SMALL_NUMBER_5, curr_x, 103.0f); break;
-                case 6: m_resources->draw_texture(TextId::SMALL_NUMBER_6, curr_x, 103.0f); break;
-                case 7: m_resources->draw_texture(TextId::SMALL_NUMBER_7, curr_x, 103.0f); break;
-                case 8: m_resources->draw_texture(TextId::SMALL_NUMBER_8, curr_x, 103.0f); break;
-                case 9: m_resources->draw_texture(TextId::SMALL_NUMBER_9, curr_x, 103.0f); break;
+                case 0: m_resources->draw_texture(TextId::SMALL_NUMBER_0, curr_x, 102.0f); break;
+                case 1: m_resources->draw_texture(TextId::SMALL_NUMBER_1, curr_x, 102.0f); break;
+                case 2: m_resources->draw_texture(TextId::SMALL_NUMBER_2, curr_x, 102.0f); break;
+                case 3: m_resources->draw_texture(TextId::SMALL_NUMBER_3, curr_x, 102.0f); break;
+                case 4: m_resources->draw_texture(TextId::SMALL_NUMBER_4, curr_x, 102.0f); break;
+                case 5: m_resources->draw_texture(TextId::SMALL_NUMBER_5, curr_x, 102.0f); break;
+                case 6: m_resources->draw_texture(TextId::SMALL_NUMBER_6, curr_x, 102.0f); break;
+                case 7: m_resources->draw_texture(TextId::SMALL_NUMBER_7, curr_x, 102.0f); break;
+                case 8: m_resources->draw_texture(TextId::SMALL_NUMBER_8, curr_x, 102.0f); break;
+                case 9: m_resources->draw_texture(TextId::SMALL_NUMBER_9, curr_x, 102.0f); break;
                 default: break;
                 }
-                curr_x -= 7.0f;
+                curr_x -= 8.0f;
             } while(m_points_cpy > 0);
         }
 
@@ -125,19 +133,19 @@ void GameLogic::draw() {
                 Uint64 rem = m_points_cpy % 10lu;
                 m_points_cpy /= 10lu;
                 switch(rem) {
-                case 0: m_resources->draw_texture(TextId::SMALL_NUMBER_0, curr_x, 124.0f); break;
-                case 1: m_resources->draw_texture(TextId::SMALL_NUMBER_1, curr_x, 124.0f); break;
-                case 2: m_resources->draw_texture(TextId::SMALL_NUMBER_2, curr_x, 124.0f); break;
-                case 3: m_resources->draw_texture(TextId::SMALL_NUMBER_3, curr_x, 124.0f); break;
-                case 4: m_resources->draw_texture(TextId::SMALL_NUMBER_4, curr_x, 124.0f); break;
-                case 5: m_resources->draw_texture(TextId::SMALL_NUMBER_5, curr_x, 124.0f); break;
-                case 6: m_resources->draw_texture(TextId::SMALL_NUMBER_6, curr_x, 124.0f); break;
-                case 7: m_resources->draw_texture(TextId::SMALL_NUMBER_7, curr_x, 124.0f); break;
-                case 8: m_resources->draw_texture(TextId::SMALL_NUMBER_8, curr_x, 124.0f); break;
-                case 9: m_resources->draw_texture(TextId::SMALL_NUMBER_9, curr_x, 124.0f); break;
+                case 0: m_resources->draw_texture(TextId::SMALL_NUMBER_0, curr_x, 123.0f); break;
+                case 1: m_resources->draw_texture(TextId::SMALL_NUMBER_1, curr_x, 123.0f); break;
+                case 2: m_resources->draw_texture(TextId::SMALL_NUMBER_2, curr_x, 123.0f); break;
+                case 3: m_resources->draw_texture(TextId::SMALL_NUMBER_3, curr_x, 123.0f); break;
+                case 4: m_resources->draw_texture(TextId::SMALL_NUMBER_4, curr_x, 123.0f); break;
+                case 5: m_resources->draw_texture(TextId::SMALL_NUMBER_5, curr_x, 123.0f); break;
+                case 6: m_resources->draw_texture(TextId::SMALL_NUMBER_6, curr_x, 123.0f); break;
+                case 7: m_resources->draw_texture(TextId::SMALL_NUMBER_7, curr_x, 123.0f); break;
+                case 8: m_resources->draw_texture(TextId::SMALL_NUMBER_8, curr_x, 123.0f); break;
+                case 9: m_resources->draw_texture(TextId::SMALL_NUMBER_9, curr_x, 123.0f); break;
                 default: break;
                 }
-                curr_x -= 7.0f;
+                curr_x -= 8.0f;
             } while(m_points_cpy > 0);
         }
 
@@ -153,6 +161,16 @@ void GameLogic::tick() {
 
     switch(m_state) {
     case State::MENU:
+        if (m_cloud_version_str.empty() && m_cloud_version_async.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+            m_cloud_version_str = m_cloud_version_async.get();
+            if (m_cloud_version_str.empty()) {
+                m_cloud_version_str = c_version;
+                SDL_Log("Failed to get cloud version.");
+            } else {
+                SDL_Log("Got cloud version: %s.", m_cloud_version_str.c_str());
+                m_has_update = m_cloud_version_str != c_version;
+            }
+        }
         break;
     case State::PLAYING:
         m_player_accel_y -= c_character_gravity_y;
@@ -165,20 +183,22 @@ void GameLogic::tick() {
 
         {
             const SDL_FPoint player_pos{c_player_x_pos, static_cast<float>(m_player_y.curr)};
-            bool collided = false;
+            bool collided = m_player_y.curr < -15.0;
 
-            for(auto& i : m_pipes) {
-                const float x = static_cast<float>(i.off_x.get(m_interp));
+            if (!collided) {
+                for(auto& i : m_pipes) {
+                    const float x = static_cast<float>(i.off_x.get(m_interp));
 
-                if (m_resources->check_texture_over_texture(
-                    TextId::BIRD_0_FRAME_0, player_pos,
-                    TextId::PIPE_GREEN_DOWN, {x, i.get_upper() - 5.0f}
-                ) || m_resources->check_texture_over_texture(
-                    TextId::BIRD_0_FRAME_0, player_pos,
-                    TextId::PIPE_GREEN_UP, {x, i.get_lower() + 5.0f}
-                )) {
-                    collided = true;
-                    break;
+                    if (m_resources->check_texture_over_texture(
+                        TextId::BIRD_0_FRAME_0, player_pos,
+                        TextId::PIPE_GREEN_DOWN, {x, i.get_upper() - 5.0f}
+                    ) || m_resources->check_texture_over_texture(
+                        TextId::BIRD_0_FRAME_0, player_pos,
+                        TextId::PIPE_GREEN_UP, {x, i.get_lower() + 5.0f}
+                    )) {
+                        collided = true;
+                        break;
+                    }
                 }
             }
 
@@ -188,6 +208,7 @@ void GameLogic::tick() {
                 TextId::FLOOR, {0.0f, c_floor_y_pos + 5.0f}
             )) {
                 m_score.set_score_if_higher(m_points_usr);
+                m_click_time = SDL_GetTicksNS();
                 m_state = State::END_PAUSE;
             }
         }
@@ -223,8 +244,13 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
 
     case State::END_PAUSE:
         if (ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-            if (m_resources->check_mouse_over(TextId::BUTTON_START, {46.0f, 167.0f}, mouse_conv)) {
+            if (m_resources->check_mouse_over(TextId::BUTTON_START, {46.0f, 167.0f}, mouse_conv) &&
+                SDL_GetTicksNS() - m_click_time > static_cast<Uint64>(1'000'000'000ULL)
+            ) {
                 m_state = State::HINT_START;
+            }
+            else if (m_resources->check_mouse_over(TextId::BACK_BTN, {2.0f, 2.0f}, mouse_conv)) {
+                m_state = State::RANDOMIZE_MENU;
             }
         } else if (is_back) {
             m_state = State::RANDOMIZE_MENU;
@@ -237,6 +263,10 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
         if (ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             if (m_resources->check_mouse_over(TextId::BUTTON_START, {46.0f, 167.0f}, mouse_conv)) {
                 m_state = State::HINT_START;
+            } else if (m_resources->check_mouse_over(TextId::CLOSE_BTN, {2.0f, 2.0f}, mouse_conv)) {
+                return SDL_APP_SUCCESS;
+            } else if (m_resources->check_mouse_over(TextId::UPDATE_LABEL, {70.0f, 2.0f}, mouse_conv)) {
+                SDL_OpenURL("https://gamejolt.com/games/FlappyBlock/1118179");
             }
         } else if (is_back) {
             return SDL_APP_SUCCESS;
@@ -247,6 +277,8 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
 
     case State::HINT_START:
         if (is_back) {
+            m_state = State::RANDOMIZE_MENU;
+        } else if (m_resources->check_mouse_over(TextId::BACK_BTN, {2.0f, 2.0f}, mouse_conv)) {
             m_state = State::RANDOMIZE_MENU;
         } else {
             for(size_t p = 0; p < std::size(m_pipes); ++p)
@@ -276,7 +308,7 @@ SDL_AppResult GameLogic::event(SDL_Event& ev) {
 }
 
 void GameLogic::draw_background() {
-    const double x = - std::fmod(static_cast<double>(SDL_GetTicksNS() - m_background_offset) * 1.5e-8, 144.0);
+    const double x = - std::fmod(static_cast<double>(SDL_GetTicksNS() - m_game_time_offset) * 1.5e-8, 144.0);
     m_resources->draw_texture(m_sel_bg, static_cast<float>(x), 0.0f);
     m_resources->draw_texture(m_sel_bg, static_cast<float>(x) + 143.9f, 0.0f);
 }
@@ -284,7 +316,7 @@ void GameLogic::draw_background() {
 void GameLogic::draw_floor() {
     using TextId = ResourceManager::TextureId;
 
-    const double x = - std::fmod(static_cast<double>(SDL_GetTicksNS() - m_background_offset) * 2.5e-8, 12.0);
+    const double x = - std::fmod(static_cast<double>(SDL_GetTicksNS() - m_game_time_offset) * 2.5e-8, 12.0);
     m_resources->draw_texture(TextId::FLOOR, static_cast<float>(x), c_floor_y_pos);
 }
 
