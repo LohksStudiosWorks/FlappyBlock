@@ -69,13 +69,24 @@ jobs:
           chmod +x android_build_release.sh
           ./android_build_release.sh
 
-      - name: Upload Artifacts
+          mkdir -p _release
+          # Disabled AAB because it is not needed for now
+          #cp android-project/app/build/outputs/bundle/release/*.aab _release/release.aab
+          cp android-project/app/build/outputs/apk/release/*.apk _release/release.apk
+
+      - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
           name: UPLOAD_APK
           path: |
-            android-project/app/build/outputs/bundle/release/*.aab
-            android-project/app/build/outputs/apk/release/*.apk
+            _release/release.apk
+
+      #- name: Upload AAB
+      #  uses: actions/upload-artifact@v7
+      #  with:
+      #    name: UPLOAD_AAB
+      #    path: |
+      #      _release/release.aab
 
   release:
     needs: [build-pc, build-android]
