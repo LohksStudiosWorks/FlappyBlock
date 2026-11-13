@@ -2,6 +2,7 @@ include(FetchContent)
 
 set(BUILD_CURL_EXE OFF CACHE BOOL "Disable curl executable" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "Disable curl tests" FORCE)
+set(CURL_USE_LIBPSL OFF CACHE BOOL "Disable libpsl in curl" FORCE)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static curl" FORCE)
 
