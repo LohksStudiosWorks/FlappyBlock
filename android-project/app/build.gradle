@@ -27,12 +27,21 @@ android {
             }
         }
     }
+    signingConfigs {
+        release {
+            storeFile file("../release-key.jks")
+            storePassword System.getenv("KEYSTORE_PASSWORD")
+            keyAlias "android_release_key"
+            keyPassword System.getenv("KEY_PASSWORD")
+        }
+    } 
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
+    }   
     applicationVariants.all { variant ->
         tasks["merge${variant.name.capitalize()}Assets"]
             .dependsOn("externalNativeBuild${variant.name.capitalize()}")
