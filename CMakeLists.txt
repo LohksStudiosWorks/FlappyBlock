@@ -11,6 +11,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
+if(MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
+    set(CMAKE_C_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O0" CACHE STRING "Override Release flags" FORCE)
+    set(CMAKE_C_FLAGS_RELEASE "-O0" CACHE STRING "Override Release flags" FORCE)
+endif()
+
 set(PROJECT_ROOT_DIR "${CMAKE_SOURCE_DIR}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DUNICODE -D_UNICODE")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE -D_UNICODE")
@@ -63,10 +71,6 @@ if((UNIX AND NOT APPLE AND NOT ANDROID) OR MINGW)
     )
 endif()
 
-target_compile_options(core PRIVATE
-    $<$<CONFIG:Release>:-O2;-fno-fast-math>
-)
-
 
 # ===== Platform-specific Target (Android Shared Library vs Desktop Executable) ===== #
 
@@ -79,10 +83,6 @@ if(ANDROID)
     target_link_libraries(main PRIVATE
         core
     )
-
-    target_compile_options(main PRIVATE
-        $<$<CONFIG:Release>:-O2;-fno-fast-math>
-    )
 else()
     add_executable(${PROJECT_NAME} WIN32
         "${PROJECT_ROOT_DIR}/src/main.cpp"
@@ -94,10 +94,6 @@ else()
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
         core
-    )
-
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:-O2;-fno-fast-math>
     )
 endif()
 
