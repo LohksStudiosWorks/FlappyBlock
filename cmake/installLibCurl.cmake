@@ -21,16 +21,21 @@ set(CURL_ZSTD ON CACHE STRING "Enable Zstandard" FORCE)
 set(USE_NGHTTP2 ON CACHE BOOL "Enable HTTP/2" FORCE)
 set(USE_LIBIDN2 ON CACHE BOOL "Enable IDN2" FORCE)
 
+set(CURL_ENABLE_SSL ON CACHE BOOL "Enable SSL support" FORCE)
+
 # Windows-specific configuration
 if(WIN32)
     # Native Windows TLS implementation
-    set(CURL_USE_SCHANNEL ON CACHE BOOL "Use Windows Schannel" FORCE)
+    set(CURL_USE_SCHANNEL ON CACHE BOOL "Use Schannel" FORCE)
     set(CURL_USE_OPENSSL OFF CACHE BOOL "Disable OpenSSL" FORCE)
 
     # Match the x64-windows-static vcpkg triplet
     if(MSVC)
         set(CURL_STATIC_CRT ON CACHE BOOL "Use static MSVC CRT" FORCE)
     endif()
+elseif(UNIX AND NOT APPLE AND NOT ANDROID)
+    # Linux TLS
+    set(CURL_USE_OPENSSL ON CACHE BOOL "Use OpenSSL" FORCE)
 endif()
 
 FetchContent_Declare(

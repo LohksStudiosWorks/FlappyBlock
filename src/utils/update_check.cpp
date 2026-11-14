@@ -30,25 +30,50 @@ static size_t __WriteCallback(void* contents, size_t size, size_t nmemb, void* u
     return total_size;
 }
 
-std::string download(const std::string& uri) {
+static std::string download(const std::string& uri)
+{
     CURL* curl = curl_easy_init();
-    if (!curl) { return {}; }
+    if (!curl)
+        return {};
 
     std::string data;
+    char error_buffer[CURL_ERROR_SIZE]{};
 
     curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
-    
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, __WriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "FlappyBlock/2.0");
 
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "LSWE-Example/1.0");
+    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 20L);
 
     CURLcode res = curl_easy_perform(curl);
-    
+
+    long http_status = 0;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_status);
+
+    if (res != CURLE_OK)
+    {
+        fprintf(stderr, "CURL ERROR [%d]: %s\n",
+            res,
+            error_buffer[0] ? error_buffer : curl_easy_strerror(res));
+    }
+    else
+    {
+        fprintf(stderr, "HTTP STATUS: %ld\n", http_status);
+        fprintf(stderr, "RECEIVED: %zu bytes\n", data.size());
+
+        if (http_status < 200 || http_status >= 300)
+            fprintf(stderr, "RESPONSE: %.300s\n", data.c_str());
+    }
+
     curl_easy_cleanup(curl);
 
-    return res == CURLE_OK ? data : std::string{};
+    return (res == CURLE_OK && http_status >= 200 && http_status < 300)
+        ? data
+        : std::string{};
 }
+
 #endif
