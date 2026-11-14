@@ -94,6 +94,8 @@ if(ANDROID)
     target_link_libraries(main PRIVATE
         core
     )
+
+    target_compile_definitions(core PUBLIC GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=1)
 else()
     add_executable(${PROJECT_NAME} WIN32
         "${PROJECT_ROOT_DIR}/src/main.cpp"
@@ -106,6 +108,8 @@ else()
     target_link_libraries(${PROJECT_NAME} PRIVATE
         core
     )
+
+    target_compile_definitions(core PUBLIC GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=0)
 endif()
 
 
@@ -114,19 +118,15 @@ if(MSVC)
     target_compile_options(core PRIVATE /W4)
     if(ANDROID)
         target_compile_options(main PRIVATE /W4)
-        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=1)
     else()
         target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=0)
     endif()
 else()
     target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
     if(ANDROID)
         target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic)
-        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=1)
     else()
         target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=0)
     endif()
 endif()
 
