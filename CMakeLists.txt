@@ -105,6 +105,15 @@ else()
     target_compile_options(${TARGETING_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+# Install
+
+include(GNUInstallDirs)
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
 # Embedding data
 
