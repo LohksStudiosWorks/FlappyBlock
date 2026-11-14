@@ -51,6 +51,7 @@ public:
         SMALL_NUMBER_8,
         SMALL_NUMBER_9,
         UPDATE_LABEL,
+        WIFI_OFF_LABEL,
         BACK_BTN,
         CLOSE_BTN,
     };

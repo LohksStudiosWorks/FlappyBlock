@@ -61,9 +61,7 @@ private:
 
     std::shared_ptr<ResourceManager> m_resources;
     std::future<std::string> m_cloud_version_async;
-#if (IS_ANDROID == 0)
     std::string m_cloud_version_str;
-#endif
     SDL_Renderer* const m_renderer_ref;
     Interpolator m_interp;
     ScoreManager m_score;
@@ -76,5 +74,6 @@ private:
     //double m_bg_pos = 0.0;
     double m_player_accel_y = 0.0;
     async_double m_player_y{130.0};
+    bool m_fail_update = false;
     bool m_has_update = false;
 };

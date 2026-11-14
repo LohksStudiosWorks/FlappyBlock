@@ -14,9 +14,7 @@ static float make_random_y();
 
 GameLogic::GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer)
     : m_resources(resources),
-#if (IS_ANDROID == 0)
     m_cloud_version_async(std::async(std::launch::async, get_latest_version)),
-#endif
     m_renderer_ref(renderer)
 {}
 
@@ -35,6 +33,7 @@ void GameLogic::draw() {
         m_resources->draw_texture(TextId::CLOSE_BTN, 2.0f, 2.0f);
         //m_resources->draw_texture(TextId::BUTTON_SCORES, 75.0f, 167.0f);
         if (m_has_update) m_resources->draw_texture(TextId::UPDATE_LABEL, 70.0f, 2.0f);
+        if (m_fail_update) m_resources->draw_texture(TextId::WIFI_OFF_LABEL, 129.0f, 2.0f);
         break;
     case State::HINT_START:
         m_game_time_offset = SDL_GetTicksNS();
@@ -165,18 +164,17 @@ void GameLogic::tick() {
 
     switch(m_state) {
     case State::MENU:
-#if (IS_ANDROID == 0)
         if (m_cloud_version_str.empty() && m_cloud_version_async.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
             m_cloud_version_str = m_cloud_version_async.get();
             if (m_cloud_version_str.empty()) {
                 m_cloud_version_str = c_version;
                 SDL_Log("Failed to get cloud version.");
+                m_fail_update = true;
             } else {
                 SDL_Log("Got cloud version: %s.", m_cloud_version_str.c_str());
                 m_has_update = m_cloud_version_str != c_version;
             }
         }
-#endif
         break;
     case State::PLAYING:
         m_player_accel_y -= c_character_gravity_y;
