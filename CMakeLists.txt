@@ -71,7 +71,7 @@ target_link_libraries(core PUBLIC
 
 if(NOT ANDROID)
     target_link_libraries(core PUBLIC
-        libcurl
+        CURL::libcurl
     )
 endif()
 
@@ -114,19 +114,19 @@ if(MSVC)
     target_compile_options(core PRIVATE /W4)
     if(ANDROID)
         target_compile_options(main PRIVATE /W4)
-        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" "IS_ANDROID=1")
+        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=1)
     else()
         target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" "IS_ANDROID=0")
+        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=0)
     endif()
 else()
     target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
     if(ANDROID)
         target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic)
-        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" "IS_ANDROID=1")
+        add_compile_definitions(main PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=1)
     else()
         target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" "IS_ANDROID=0")
+        add_compile_definitions(${PROJECT_NAME} PRIVATE GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=0)
     endif()
 endif()
 
