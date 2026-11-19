@@ -5,6 +5,14 @@ project(FlappyBlock
     DESCRIPTION "FlappyBlock is a remake of a popular game made in C/C++ with SDL3"
     LANGUAGES CXX
 )
+
+if(MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
+    set(CMAKE_C_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O0" CACHE STRING "Override Release flags" FORCE)
+    set(CMAKE_C_FLAGS_RELEASE "-O0" CACHE STRING "Override Release flags" FORCE)
+endif()
  
 include(cmake/projectFlags.cmake)
 include(cmake/installBatteryEmbed.cmake)
