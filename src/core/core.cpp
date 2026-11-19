@@ -64,7 +64,7 @@ Core::Core(int argc, char *argv[]) {
     m_resources = std::make_shared<ResourceManager>(m_sdl.renderer, m_cfg);
     SDL_SetWindowIcon(m_sdl.window, m_resources->get_icon());
 
-    m_game = std::make_unique<GameLogic>(m_resources, m_sdl.renderer);
+    m_game = std::make_unique<GameLogic>(m_resources, m_sdl.renderer, m_sdl.window);
     
     m_game_thread_running = true;
     m_game_tick_thread = std::thread([this] {

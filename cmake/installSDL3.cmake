@@ -4,34 +4,29 @@ message(STATUS "Declaring SDL3 and dependencies...")
 
 # Declare SDL3
 FetchContent_Declare(
-    SDL3
-    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-    GIT_TAG        release-3.4.20
-    GIT_SHALLOW TRUE
+  SDL3
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+  GIT_TAG        release-3.4.20
 )
 FetchContent_Declare(
     SDL3_image
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
     GIT_TAG        release-3.4.8
-    GIT_SHALLOW TRUE
 )
 FetchContent_Declare(
     SDL3_ttf
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
     GIT_TAG        release-3.2.2 
-    GIT_SHALLOW TRUE
 )
 FetchContent_Declare(
     SDL3_mixer
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
     GIT_TAG        release-3.2.4
-    GIT_SHALLOW TRUE
 )
 #FetchContent_Declare(
 #    SDL_net
 #    GIT_REPOSITORY https://github.com/libsdl-org/SDL_net.git
 #    GIT_TAG        release-3.2.0
-#    GIT_SHALLOW TRUE
 #)
 
 message(STATUS "Setting SDL3 flags...")

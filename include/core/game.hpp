@@ -27,7 +27,7 @@ public:
         END_PAUSE
     };
     
-    GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer);
+    GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer, SDL_Window* window);
 
     void draw();
     void tick();
@@ -63,6 +63,7 @@ private:
     std::future<std::string> m_cloud_version_async;
     std::string m_cloud_version_str;
     SDL_Renderer* const m_renderer_ref;
+    SDL_Window* const m_window_ref;
     Interpolator m_interp;
     ScoreManager m_score;
     pipe_pos m_pipes[3]{};
