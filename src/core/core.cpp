@@ -50,7 +50,7 @@ Core::Core(int argc, char *argv[]) {
 
     SDL_Log("Setup of screen and peripherals...");
 
-    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
+    //SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
     SDL_SetAppMetadata("FlappyBlock", "1.0", "com.lsw.flappyblock");
     SDL_CreateWindowAndRenderer("Flappy Block", c_default_app_size.x, c_default_app_size.y, c_default_app_flags, &m_sdl.window, &m_sdl.renderer);
     SDL_SetRenderLogicalPresentation(m_sdl.renderer, c_target_app_region.x, c_target_app_region.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
@@ -64,7 +64,7 @@ Core::Core(int argc, char *argv[]) {
     m_resources = std::make_shared<ResourceManager>(m_sdl.renderer, m_cfg);
     SDL_SetWindowIcon(m_sdl.window, m_resources->get_icon());
 
-    m_game = std::make_unique<GameLogic>(m_resources, m_sdl.renderer);
+    m_game = std::make_unique<GameLogic>(m_resources, m_sdl.renderer, m_sdl.window);
     
     m_game_thread_running = true;
     m_game_tick_thread = std::thread([this] {

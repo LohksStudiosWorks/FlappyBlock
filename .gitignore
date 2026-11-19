@@ -9,3 +9,7 @@ android-project/.gradle/*/fileChanges/
 android-project/.gradle/buildOutputCleanup/
 android-project/.gradle/*/checksums/
 android-project/.gradle/8.12/checksums/checksums.lock
+android-project/release-key.jks
+CMakeLists_old.txt
+install/
+resources/certificates/mozilla_certificate.pem

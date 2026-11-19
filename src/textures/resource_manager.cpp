@@ -58,6 +58,7 @@ ResourceManager::ResourceManager(SDL_Renderer* renderer, const std::unordered_ma
     m_map[TextureId::SMALL_NUMBER_8]    = {288.0f,  96.0f, 7.0f, 10.0f};
     m_map[TextureId::SMALL_NUMBER_9]    = {295.0f,  96.0f, 7.0f, 10.0f};
     m_map[TextureId::UPDATE_LABEL]      = {440.0f, 242.0f, 72.0f, 14.0f};
+    m_map[TextureId::WIFI_OFF_LABEL]    = {401.0f, 242.0f, 13.0f, 14.0f};
     m_map[TextureId::BACK_BTN]          = {427.0f, 242.0f, 13.0f, 14.0f};
     m_map[TextureId::CLOSE_BTN]         = {414.0f, 242.0f, 13.0f, 14.0f};
 }

@@ -12,8 +12,11 @@ constexpr double c_character_jump_accel_y = 8.0;
 
 static float make_random_y();
 
-GameLogic::GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer)
-    : m_resources(resources), m_cloud_version_async(std::async(std::launch::async, get_latest_version)), m_renderer_ref(renderer)
+GameLogic::GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer, SDL_Window* window)
+    : m_resources(resources),
+    m_cloud_version_async(std::async(std::launch::async, get_latest_version)),
+    m_renderer_ref(renderer),
+    m_window_ref(window)
 {}
 
 void GameLogic::draw() {
@@ -31,6 +34,7 @@ void GameLogic::draw() {
         m_resources->draw_texture(TextId::CLOSE_BTN, 2.0f, 2.0f);
         //m_resources->draw_texture(TextId::BUTTON_SCORES, 75.0f, 167.0f);
         if (m_has_update) m_resources->draw_texture(TextId::UPDATE_LABEL, 70.0f, 2.0f);
+        if (m_fail_update) m_resources->draw_texture(TextId::WIFI_OFF_LABEL, 129.0f, 2.0f);
         break;
     case State::HINT_START:
         m_game_time_offset = SDL_GetTicksNS();
@@ -163,9 +167,14 @@ void GameLogic::tick() {
     case State::MENU:
         if (m_cloud_version_str.empty() && m_cloud_version_async.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
             m_cloud_version_str = m_cloud_version_async.get();
-            if (m_cloud_version_str.empty()) {
+            if (m_cloud_version_str.empty() || m_cloud_version_str[0] == '#') {
+                constexpr size_t size_lim = 128;
+                std::string err_str = "Failed to get cloud version: "
+                    + (m_cloud_version_str.empty() ? "NULL" : m_cloud_version_str.substr(1, size_lim + 1))
+                    + (m_cloud_version_str.size() > (size_lim + 1) ? "..." : "");
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Failed to check for updates", err_str.c_str(), m_window_ref);
                 m_cloud_version_str = c_version;
-                SDL_Log("Failed to get cloud version.");
+                m_fail_update = true;
             } else {
                 SDL_Log("Got cloud version: %s.", m_cloud_version_str.c_str());
                 m_has_update = m_cloud_version_str != c_version;

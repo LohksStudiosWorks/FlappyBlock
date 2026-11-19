@@ -10,6 +10,10 @@
 #ifndef GAME_VERSION
 #error "Game version not set?"
 #endif
+#ifndef IS_ANDROID
+#error "Check for Android not set?"
+#endif
+
 
 constexpr char c_version[] = GAME_VERSION;
 
@@ -23,7 +27,7 @@ public:
         END_PAUSE
     };
     
-    GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer);
+    GameLogic(std::shared_ptr<ResourceManager> resources, SDL_Renderer* renderer, SDL_Window* window);
 
     void draw();
     void tick();
@@ -59,6 +63,7 @@ private:
     std::future<std::string> m_cloud_version_async;
     std::string m_cloud_version_str;
     SDL_Renderer* const m_renderer_ref;
+    SDL_Window* const m_window_ref;
     Interpolator m_interp;
     ScoreManager m_score;
     pipe_pos m_pipes[3]{};
@@ -70,5 +75,6 @@ private:
     //double m_bg_pos = 0.0;
     double m_player_accel_y = 0.0;
     async_double m_player_y{130.0};
+    bool m_fail_update = false;
     bool m_has_update = false;
 };

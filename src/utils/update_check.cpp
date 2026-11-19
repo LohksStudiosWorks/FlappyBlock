@@ -1,16 +1,22 @@
 #include "utils/update_check.hpp"
-#include <curl/curl.h>
-#include <cstdint>
-#include <regex>
 
-constexpr char api_url[] = "https://gamejolt.com/site-api/web/discover/games/overview/1118179";
+#include <httplib.h>
+#include <cstdint>
+#include <sstream>
+#include <regex>
+#include <iostream>
+#include <battery/embed.hpp>
+
+constexpr char api_url[] = "https://gamejolt.com";
+constexpr char api_path[] = "/site-api/web/discover/games/overview/1118179";
 const std::regex api_regex("\"version_number\"\\s*:\\s*\"([\\d.]+)\"", std::regex_constants::icase);
 
-static std::string download(const std::string& uri);
-
+static std::string download();
 
 std::string get_latest_version() {
-    const std::string data = download(api_url);
+    std::string data = download();
+    if (data.empty() || data[0] == '#') return data;
+
     std::smatch match;
 
     if (std::regex_search(data, match, api_regex) && match.size() > 1)
@@ -19,33 +25,59 @@ std::string get_latest_version() {
     return "";
 }
 
+std::string download() {
+    httplib::Client cli(api_url);
 
-static size_t __WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-    size_t total_size = size * nmemb;
-    auto* buffer = static_cast<std::string*>(userp);    
-    auto* data_ptr = static_cast<uint8_t*>(contents);
-    buffer->insert(buffer->end(), data_ptr, data_ptr + total_size);    
-    return total_size;
-}
-
-std::string download(const std::string& uri) {
-    CURL* curl = curl_easy_init();
-    if (!curl) { return {}; }
-
-    std::string data;
-
-    curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
+    const auto embed = b::embed<"resources/certificates/mozilla_certificate.pem">();
+    cli.load_ca_cert_store(embed.data(), embed.size());
     
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, __WriteCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+    auto res = cli.Get(api_path);
 
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "LSWE-Example/1.0");
+    if (!res) {
+        const auto err = res.error();
+        std::stringstream err_str;
 
-    CURLcode res = curl_easy_perform(curl);
-    
-    curl_easy_cleanup(curl);
+        switch (err) {
+            case httplib::Error::SSLConnection:{
+                char error_buffer[256]{};
 
-    return res == CURLE_OK ? data : std::string{};
+                const auto backend_error =
+                    static_cast<int>(res.ssl_backend_error());
+
+                mbedtls_strerror(
+                    backend_error,
+                    error_buffer,
+                    sizeof(error_buffer)
+                );
+
+                err_str << "SSL connection failed\n"
+                        << "TLS error: " << res.ssl_error() << '\n'
+                        << "MbedTLS error: " << backend_error << '\n'
+                        << "Description: " << error_buffer;
+            }
+                break;
+            case httplib::Error::SSLLoadingCerts:
+                err_str << "SSL cert loading failed, backend error: "
+                        << std::hex << res.ssl_backend_error();
+            break;
+
+            case httplib::Error::SSLServerVerification:
+                err_str << "SSL verification failed, verify error: "
+                        << res.ssl_backend_error();
+            break;
+
+            case httplib::Error::SSLServerHostnameVerification:
+                err_str << "SSL hostname verification failed, verify error: "
+                        << res.ssl_backend_error();
+            break;
+
+            default:
+                err_str << "HTTP error: " << httplib::to_string(err);
+                break;
+        }
+
+        return "#" + err_str.str();
+    }
+
+    return res->body;
 }
