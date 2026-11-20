@@ -6,6 +6,19 @@ project(FlappyBlock
     LANGUAGES CXX
 )
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DUNICODE -D_UNICODE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE -D_UNICODE")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(BUILD_SHARED_LIBS OFF)
+
+if (MINGW)
+    include(cmake/fixMinGW.cmake)
+endif()
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
     set(CMAKE_C_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
@@ -28,7 +41,7 @@ sdl3plus_add_game(${PROJECT_NAME}
         resources/icon.png
 )
 
-sdl3plus_add_android_key_file(${PROJECT_NAME} resources/release-keys.jks)
+sdl3plus_add_android_key_file(${PROJECT_NAME} resources/release-key.jks)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE
