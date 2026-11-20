@@ -5,7 +5,7 @@
 #include <sstream>
 #include <regex>
 #include <iostream>
-#include <battery/embed.hpp>
+#include <SDL3_plus/SDL3_plus.hpp>
 
 constexpr char api_url[] = "https://gamejolt.com";
 constexpr char api_path[] = "/site-api/web/discover/games/overview/1118179";
@@ -27,9 +27,7 @@ std::string get_latest_version() {
 
 std::string download() {
     httplib::Client cli(api_url);
-
-    const auto embed = b::embed<"resources/certificates/mozilla_certificate.pem">();
-    cli.load_ca_cert_store(embed.data(), embed.size());
+    SDL3_plus::apply_ca_certificate_on(cli);
     
     auto res = cli.Get(api_path);
 

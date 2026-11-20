@@ -10,9 +10,6 @@
 #ifndef GAME_VERSION
 #error "Game version not set?"
 #endif
-#ifndef IS_ANDROID
-#error "Check for Android not set?"
-#endif
 
 
 constexpr char c_version[] = GAME_VERSION;

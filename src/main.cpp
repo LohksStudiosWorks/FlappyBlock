@@ -5,7 +5,7 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-#include "core/core.hpp"
+#include <core/core.hpp>
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     Core* core = new Core(argc, argv);
