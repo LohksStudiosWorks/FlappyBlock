@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.28)
 
 project(FlappyBlock
-    VERSION 1.3.0
-    DESCRIPTION "FlappyBlock is a remake of a popular game made in C/C++ with SDL3"
+    VERSION 1.3.1
+    DESCRIPTION "FlappyBlock is a remake of a popular game made in C/C++ with SDL3_plus"
     LANGUAGES CXX
 )
 
@@ -18,14 +18,6 @@ set(BUILD_SHARED_LIBS OFF)
 if (MINGW)
     include(cmake/fixMinGW.cmake)
 endif()
-
-if(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
-    set(CMAKE_C_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
-else()
-    set(CMAKE_CXX_FLAGS_RELEASE "-O0" CACHE STRING "Override Release flags" FORCE)
-    set(CMAKE_C_FLAGS_RELEASE "-O0" CACHE STRING "Override Release flags" FORCE)
-endif()
  
 include(cmake/installSDL3plus.cmake)
 
@@ -39,6 +31,8 @@ sdl3plus_add_game(${PROJECT_NAME}
     
     ICON
         resources/icon.png
+    STUDIO
+        lohksstudiosworks
 )
 
 sdl3plus_add_android_key_file(${PROJECT_NAME} resources/release-key.jks)
