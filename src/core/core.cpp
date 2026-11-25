@@ -1,4 +1,4 @@
-#include "core/core.hpp"
+#include <core/core.hpp>
 #include "utils/file_manager.hpp"
 
 #include <format>
@@ -7,12 +7,29 @@
 
 constexpr SDL_Point c_default_app_size = {720, 1280};
 constexpr SDL_Point c_target_app_region = {144, 256};
-constexpr SDL_WindowFlags c_default_app_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL;// | SDL_WINDOW_FULLSCREEN;
+constexpr SDL_WindowFlags c_default_app_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
+#if defined(SDL_PLATFORM_ANDROID)
+    | SDL_WINDOW_FULLSCREEN
+#endif
+;
 
 Core::Core(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
     SDL_Log("Initializing video, audio, and events...");
+
+#if defined(SDL_PLATFORM_LINUX)
+    if (!SDL_GetEnvironmentVariable(SDL_GetEnvironment(), "SDL_VIDEO_DRIVER")) {
+        SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11");
+    }
+    else {
+        SDL_Log("Overwrite of environment variable SDL_VIDEO_DRIVER detected. Note: Wayland may cause memory leaks, so take care!");
+    }
+#endif
+#if defined(SDL_PLATFORM_ANDROID)
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait");
+#endif
+
     SDL_Init(SDL_INIT_VIDEO); //  | SDL_INIT_AUDIO | SDL_INIT_EVENTS
 
     SDL_Log("Loading config...");
@@ -57,7 +74,7 @@ Core::Core(int argc, char *argv[]) {
 
     if (m_cfg["vsync"] == "1") {
         if (!SDL_SetRenderVSync(m_sdl.renderer, 1)) {
-            SDL_Log("VSync cannot be disabled: %s", SDL_GetError());
+            SDL_Log("VSync cannot be enabled: %s", SDL_GetError());
         }
     }
 

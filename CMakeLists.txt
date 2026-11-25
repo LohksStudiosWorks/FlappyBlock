@@ -1,99 +1,56 @@
 cmake_minimum_required(VERSION 3.28)
 
 project(FlappyBlock
-    VERSION 1.3.0
-    DESCRIPTION "FlappyBlock is a remake of a popular game made in C/C++ with SDL3"
+    VERSION 1.3.1
+    DESCRIPTION "FlappyBlock is a remake of a popular game made in C/C++ with SDL3_plus"
     LANGUAGES CXX
 )
 
-if(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
-    set(CMAKE_C_FLAGS_RELEASE "/Od" CACHE STRING "Override Release flags" FORCE)
-else()
-    set(CMAKE_CXX_FLAGS_RELEASE "-O0" CACHE STRING "Override Release flags" FORCE)
-    set(CMAKE_C_FLAGS_RELEASE "-O0" CACHE STRING "Override Release flags" FORCE)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DUNICODE -D_UNICODE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE -D_UNICODE")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(BUILD_SHARED_LIBS OFF)
+
+if (MINGW)
+    include(cmake/fixMinGW.cmake)
 endif()
  
-include(cmake/projectFlags.cmake)
-include(cmake/installBatteryEmbed.cmake)
-include(cmake/installSDL3.cmake)
-include(cmake/installJson.cmake)
-include(cmake/installMbedTLS.cmake)
-include(cmake/installCppHttpLib.cmake)
+include(cmake/installSDL3plus.cmake)
 
-
-# ===== Shared core code ===== #
-
-file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
+file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/*.cpp
 )
 
-list(REMOVE_ITEM CORE_SOURCES
-    "${CMAKE_SOURCE_DIR}/src/main.cpp"
+sdl3plus_add_game(${PROJECT_NAME}
+    SOURCES
+        ${MAIN_SOURCES}
+    
+    ICON
+        resources/icon.png
+    STUDIO
+        lohksstudiosworks
 )
 
-add_library(core STATIC ${CORE_SOURCES})
+sdl3plus_add_android_key_file(${PROJECT_NAME} resources/release-key.jks)
 
-target_include_directories(core PUBLIC 
+
+target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries(core PUBLIC
-    SDL3::SDL3
-    SDL3_ttf::SDL3_ttf
-    SDL3_mixer::SDL3_mixer
-    SDL3_image::SDL3_image
-    #SDL3_net::SDL3_net
-    httplib::httplib
-)
+target_compile_definitions(${PROJECT_NAME} PUBLIC GAME_VERSION="${CMAKE_PROJECT_VERSION}")
 
-
-# ===== Platform-specific Target (Android Shared Library vs Desktop Executable) ===== #
-
-if(ANDROID)
-    # Android expects a shared library named "main" loaded via JNI by SDLActivity
-    add_library(main SHARED 
-        "${CMAKE_SOURCE_DIR}/src/main.cpp"
-    )
-
-    target_link_libraries(main PRIVATE
-        core
-    )
-
-    target_compile_definitions(core PUBLIC GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=1)
-else()
-    add_executable(${PROJECT_NAME} WIN32
-        "${CMAKE_SOURCE_DIR}/src/main.cpp"
-    )
-
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/executable"
-    )
-
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        core
-    )
-
-    target_compile_definitions(core PUBLIC GAME_VERSION="${CMAKE_PROJECT_VERSION}" IS_ANDROID=0)
-endif()
 
 if(MSVC)
-    target_compile_options(core PRIVATE /W4)
-    if(ANDROID)
-        target_compile_options(main PRIVATE /W4)
-    else()
-        target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-    endif()
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4)
 else()
-    target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
-    if(ANDROID)
-        target_compile_options(main PRIVATE -Wall -Wextra -Wpedantic)
-    else()
-        target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-    endif()
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-b_embed(core resources/icon.png)
-b_embed(core resources/atlas.png)
-b_embed(core resources/Artifika_font.ttf)
-b_embed(core resources/certificates/mozilla_certificate.pem)
+b_embed(${PROJECT_NAME} resources/icon.png)
+b_embed(${PROJECT_NAME} resources/atlas.png)
+b_embed(${PROJECT_NAME} resources/Artifika_font.ttf)

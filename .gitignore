@@ -13,3 +13,4 @@ android-project/release-key.jks
 CMakeLists_old.txt
 install/
 resources/certificates/mozilla_certificate.pem
+resources/release-key.jks
