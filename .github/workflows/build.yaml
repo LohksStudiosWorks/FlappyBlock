@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Bundle things up!
-        uses: LohksStudiosWorks/SDL3_plus/actions/fullBuild@master
+        uses: LohksStudiosWorks/SDL3_plus/actions/fullBuild@v1.0.2
         with:
           target_name: FlappyBlock
           keystore_base64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
