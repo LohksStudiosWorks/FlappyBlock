@@ -7,13 +7,6 @@
 #include <memory>
 #include <future>
 
-#ifndef GAME_VERSION
-#error "Game version not set?"
-#endif
-
-
-constexpr char c_version[] = GAME_VERSION;
-
 class GameLogic {
 public:
     enum class State {
